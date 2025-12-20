@@ -22,8 +22,14 @@ namespace TicketManager.Api.Repositories.Implementations
 
         public async Task<Comment?> GetByIdAsync(int id, bool asNoTracking = true, CancellationToken ct = default)
         {
-            var q = asNoTracking ? _set.AsNoTracking() : _set;
-            return await q.FirstOrDefaultAsync(c => c.Id == id, ct);
+            IQueryable<Comment> query = _set;
+
+            if (asNoTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return await query.FirstOrDefaultAsync(c => c.Id == id, ct);
         }
 
         public async Task<IReadOnlyList<Comment>> GetByUserIdAsync(string userId, CancellationToken ct = default)
