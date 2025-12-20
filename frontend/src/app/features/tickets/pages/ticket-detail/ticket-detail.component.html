@@ -189,6 +189,38 @@
           </div>
         </form>
       }
+
+      <!-- Comments Section -->
+      @if (!isEditMode) {
+        <div class="comments-section">
+          <div class="section-header">
+            <h2>Comments</h2>
+            <span class="comment-count">{{ comments.length }}</span>
+          </div>
+
+          @if (commentError) {
+            <div class="alert alert-error">
+              {{ commentError }}
+            </div>
+          }
+
+          <app-comment-form
+            [ticketId]="ticket.id"
+            [editingComment]="editingComment"
+            [isSubmitting]="isSubmittingComment"
+            (submitComment)="onSubmitComment($event)"
+            (cancelEdit)="onCancelEdit()">
+          </app-comment-form>
+
+          <app-comment-list
+            [comments]="comments"
+            [isLoading]="isLoadingComments"
+            [currentUserId]="currentUserId"
+            (deleteComment)="onDeleteComment($event)"
+            (editComment)="onEditComment($event)">
+          </app-comment-list>
+        </div>
+      }
     </div>
   }
 </div>
