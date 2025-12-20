@@ -1,23 +1,58 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketManager.Api.ApiModels.Common;
 using TicketManager.Api.ApiModels.Tickets;
+using TicketManager.Api.Data.Contexts;
 using TicketManager.Api.Domain.Entities;
-using TicketManager.Api.Domain.Enums;
 using TicketManager.Api.Repositories.Interfaces;
 
 namespace TicketManager.Api.Repositories.Implementations
 {
     public class TicketRepository : GenericRepository<Ticket>, ITicketRepository
     {
-        public TicketRepository(DbContext context) : base(context)
+        public TicketRepository(AppDbContext context) : base(context)
         {
         }
 
-        public async Task<PagedResult<Ticket>> GetPagedAsync(TicketQuery query, CancellationToken ct = default)
+        public async Task<PagedResult<Ticket>> GetCreatedPagedAsync(
+            string userId,
+            TicketQuery query,
+            CancellationToken ct = default)
         {
-            if (query.Page <= 0) query = query with { Page = 1 };
-            if (query.PageSize <= 0) query = query with { PageSize = 20 };
+            query = NormalizeQuery(query);
 
+            var q = BuildBaseQuery(query)
+                .Where(t => t.CreatedByUserId == userId);
+
+            return await ToPagedResultAsync(q, query, ct);
+        }
+
+        public async Task<PagedResult<Ticket>> GetAssignedPagedAsync(
+            string userId,
+            TicketQuery query,
+            CancellationToken ct = default)
+        {
+            query = NormalizeQuery(query);
+
+            var q = BuildBaseQuery(query)
+                .Where(t => t.AssignedToUserId == userId);
+
+            return await ToPagedResultAsync(q, query, ct);
+        }
+
+        public async  Task<Ticket?> GetDetailAsync(int ticketId, CancellationToken ct = default)
+        {
+            return await _set
+                .AsNoTracking()
+                .Include(t => t.CreatedByUser)
+                .Include(t => t.AssignedToUser)
+                .Include(t => t.Comments)
+                    .ThenInclude(c => c.CreatedByUser)
+                .FirstOrDefaultAsync(t => t.Id == ticketId, ct);
+        }
+
+
+        private IQueryable<Ticket> BuildBaseQuery(TicketQuery query)
+        {
             var q = _set
                 .AsNoTracking()
                 .Include(t => t.CreatedByUser)
@@ -27,9 +62,7 @@ namespace TicketManager.Api.Repositories.Implementations
             if (!string.IsNullOrWhiteSpace(query.Search))
             {
                 var s = query.Search.Trim();
-                q = q.Where(t =>
-                    t.Title.Contains(s) ||
-                    t.Description.Contains(s));
+                q = q.Where(t => t.Title.Contains(s) || t.Description.Contains(s));
             }
 
             if (query.Status.HasValue)
@@ -38,16 +71,46 @@ namespace TicketManager.Api.Repositories.Implementations
             if (query.Priority.HasValue)
                 q = q.Where(t => t.Priority == query.Priority.Value);
 
-            if (!string.IsNullOrWhiteSpace(query.AssignedToUserId))
-                q = q.Where(t => t.AssignedToUserId == query.AssignedToUserId);
+            return q;
+        }
 
-            if (!string.IsNullOrWhiteSpace(query.CreatedByUserId))
-                q = q.Where(t => t.CreatedByUserId == query.CreatedByUserId);
+        private static TicketQuery NormalizeQuery(TicketQuery query)
+        {
+            int page;
+            int pageSize;
 
+            if (query.Page <= 0)
+            {
+                page = 1;
+            }
+            else
+            {
+                page = query.Page;
+            }
 
+            if (query.PageSize <= 0)
+            {
+                pageSize = 20;
+            }
+            else
+            {
+                pageSize = query.PageSize;
+            }
+
+            return query with
+            {
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+        private static async Task<PagedResult<Ticket>> ToPagedResultAsync(
+            IQueryable<Ticket> q,
+            TicketQuery query,
+            CancellationToken ct)
+        {
             var total = await q.CountAsync(ct);
 
- 
             q = q.OrderByDescending(t => t.UpdatedAt);
 
             var items = await q
@@ -62,41 +125,6 @@ namespace TicketManager.Api.Repositories.Implementations
                 Page = query.Page,
                 PageSize = query.PageSize
             };
-        }
-
-        public Task<Ticket?> GetDetailAsync(int id, CancellationToken ct = default)
-        {
-            return _set
-                .AsNoTracking()
-                .Include(t => t.CreatedByUser)
-                .Include(t => t.AssignedToUser)
-                .Include(t => t.Comments)
-                    .ThenInclude(c => c.CreatedByUser)
-                .FirstOrDefaultAsync(t => t.Id == id, ct);
-        }
-
-        public async Task<bool> UpdateStatusAsync(int id, TicketStatus newStatus, DateTimeOffset nowUtc, CancellationToken ct = default)
-        {
-            var ticket = await _set.FirstOrDefaultAsync(t => t.Id == id, ct);
-            if (ticket is null) return false;
-
-            ticket.Status = newStatus;
-            ticket.UpdatedAt = nowUtc;
-
-            await _context.SaveChangesAsync(ct);
-            return true;
-        }
-
-        public async Task<bool> AssignToAsync(int id, string? assignedToUserId, DateTimeOffset nowUtc, CancellationToken ct = default)
-        {
-            var ticket = await _set.FirstOrDefaultAsync(t => t.Id == id, ct);
-            if (ticket is null) return false;
-
-            ticket.AssignedToUserId = assignedToUserId; 
-            ticket.UpdatedAt = nowUtc;
-
-            await _context.SaveChangesAsync(ct);
-            return true;
         }
     }
 }
