@@ -49,3 +49,16 @@
     </div>
   }
 </div>
+
+@if (showDeleteModal) {
+  <app-confirm-modal 
+    title="Yorumu Sil"
+    message="Bu yorumu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+    confirmText="Sil"
+    cancelText="İptal"
+    type="danger"
+    confirmIcon="trash"
+    (confirm)="confirmDelete()" 
+    (cancel)="closeDeleteModal()">
+  </app-confirm-modal>
+}

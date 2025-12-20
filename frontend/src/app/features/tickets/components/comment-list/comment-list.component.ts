@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommentDto } from '../../models/comment.models';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ConfirmModalComponent } from '../../../../shared/components/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-comment-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfirmModalComponent],
   templateUrl: './comment-list.component.html',
   styleUrl: './comment-list.component.scss'
 })
@@ -17,10 +18,24 @@ export class CommentListComponent {
   @Output() deleteComment = new EventEmitter<number>();
   @Output() editComment = new EventEmitter<CommentDto>();
 
+  showDeleteModal = false;
+  commentToDelete: number | null = null;
+
   onDelete(commentId: number): void {
-    if (confirm('Are you sure you want to delete this comment?')) {
-      this.deleteComment.emit(commentId);
+    this.commentToDelete = commentId;
+    this.showDeleteModal = true;
+  }
+
+  confirmDelete(): void {
+    if (this.commentToDelete !== null) {
+      this.deleteComment.emit(this.commentToDelete);
     }
+    this.closeDeleteModal();
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.commentToDelete = null;
   }
 
   onEdit(comment: CommentDto): void {

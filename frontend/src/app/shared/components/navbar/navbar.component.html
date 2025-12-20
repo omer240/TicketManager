@@ -46,6 +46,12 @@
 
 @if (showLogoutModal) {
   <app-confirm-modal 
+    title="Çıkış Yapmak İstiyor Musunuz?"
+    message="Oturumunuz sonlandırılacak ve giriş ekranına yönlendirileceksiniz."
+    confirmText="Çıkış Yap"
+    cancelText="İptal"
+    type="warning"
+    confirmIcon="logout"
     (confirm)="confirmLogout()" 
     (cancel)="closeLogoutModal()">
   </app-confirm-modal>
