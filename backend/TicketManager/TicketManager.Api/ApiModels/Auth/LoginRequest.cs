@@ -1,6 +1,14 @@
-﻿namespace TicketManager.Api.ApiModels.Auth
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TicketManager.Api.ApiModels.Auth
 {
-    public class LoginRequest
+    public sealed class LoginRequest
     {
+        [Required, EmailAddress]
+        public string Email { get; set; } = default!;
+
+        [Required]
+        public string Password { get; set; } = default!;
     }
+
 }
