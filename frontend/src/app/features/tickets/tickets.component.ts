@@ -6,16 +6,7 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-tickets',
   standalone: true,
   imports: [CommonModule, RouterOutlet],
-  template: `
-    <div class="tickets-layout">
-      <h2>Tickets Feature (Placeholder)</h2>
-      <router-outlet></router-outlet>
-    </div>
-  `,
-  styles: [`
-    .tickets-layout {
-      padding: 2rem;
-    }
-  `]
+  template: `<router-outlet></router-outlet>`,
+  styles: []
 })
 export class TicketsComponent {}

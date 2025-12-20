@@ -1,0 +1,103 @@
+<div class="ticket-create-container">
+  <div class="create-card">
+    <div class="header">
+      <button class="btn-back" (click)="goBack()">
+        ← Back to List
+      </button>
+      <h1>Create New Ticket</h1>
+    </div>
+
+    @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <form [formGroup]="createForm" (ngSubmit)="onSubmit()" class="create-form">
+      <div class="form-group">
+        <label for="title">Title *</label>
+        <input 
+          id="title"
+          type="text" 
+          formControlName="title"
+          placeholder="Enter ticket title"
+          [class.invalid]="title?.invalid && title?.touched"
+        />
+        @if (title?.invalid && title?.touched) {
+          <div class="error-text">
+            @if (title?.errors?.['required']) {
+              <span>Title is required</span>
+            }
+            @if (title?.errors?.['maxlength']) {
+              <span>Title must not exceed 200 characters</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <textarea 
+          id="description"
+          formControlName="description"
+          rows="8"
+          placeholder="Describe the ticket in detail..."
+          [class.invalid]="description?.invalid && description?.touched"
+        ></textarea>
+        @if (description?.invalid && description?.touched) {
+          <div class="error-text">
+            @if (description?.errors?.['required']) {
+              <span>Description is required</span>
+            }
+            @if (description?.errors?.['maxlength']) {
+              <span>Description must not exceed 2000 characters</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="priority">Priority *</label>
+          <select id="priority" formControlName="priority">
+            @for (option of priorityOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="assignedTo">Assign To (User ID) *</label>
+          <input 
+            id="assignedTo"
+            type="text" 
+            formControlName="assignedToUserId"
+            placeholder="Enter user ID"
+            [class.invalid]="assignedToUserId?.invalid && assignedToUserId?.touched"
+          />
+          @if (assignedToUserId?.invalid && assignedToUserId?.touched) {
+            <div class="error-text">
+              <span>Assigned user is required</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="goBack()"
+          [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Creating...' : 'Create Ticket' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

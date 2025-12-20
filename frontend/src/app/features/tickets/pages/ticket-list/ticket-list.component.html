@@ -1,0 +1,153 @@
+<div class="ticket-list-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Tickets</h1>
+      <div class="view-toggle">
+        <button 
+          class="toggle-btn" 
+          [class.active]="viewMode === 'myCreated'"
+          (click)="switchView('myCreated')">
+          Created by Me
+        </button>
+        <button 
+          class="toggle-btn" 
+          [class.active]="viewMode === 'myAssigned'"
+          (click)="switchView('myAssigned')">
+          Assigned to Me
+        </button>
+      </div>
+    </div>
+    <button class="btn btn-primary" (click)="navigateToCreate()">
+      <span>+ New Ticket</span>
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" [formGroup]="filterForm">
+    <div class="filter-group">
+      <input 
+        type="text" 
+        formControlName="search" 
+        placeholder="Search tickets..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-group">
+      <select formControlName="status" class="filter-select">
+        <option value="">All Statuses</option>
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-group">
+      <select formControlName="priority" class="filter-select">
+        <option value="">All Priorities</option>
+        @for (option of priorityOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <button class="btn btn-secondary" (click)="clearFilters()">Clear</button>
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading tickets...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else if (tickets.length === 0 && !errorMessage) {
+    <div class="empty-state">
+      <h3>No tickets found</h3>
+      <p>{{ viewMode === 'myCreated' ? 'You haven\'t created any tickets yet.' : 'No tickets assigned to you.' }}</p>
+      <button class="btn btn-primary" (click)="navigateToCreate()">
+        Create Your First Ticket
+      </button>
+    </div>
+  }
+
+  <!-- Tickets Table -->
+  @else if (!isLoading) {
+    <div class="tickets-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Created</th>
+            <th>Comments</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ticket of tickets; track ticket.id) {
+            <tr class="ticket-row">
+              <td class="ticket-id">#{{ ticket.id }}</td>
+              <td class="ticket-title">
+                <div class="title-content">
+                  <span class="title-text">{{ ticket.title }}</span>
+                  <span class="description-preview">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge badge-status" [style.background-color]="getStatusColor(ticket.status)">
+                  {{ getStatusLabel(ticket.status) }}
+                </span>
+              </td>
+              <td>
+                <span class="badge badge-priority" [style.background-color]="getPriorityColor(ticket.priority)">
+                  {{ getPriorityLabel(ticket.priority) }}
+                </span>
+              </td>
+              <td class="ticket-date">{{ formatDate(ticket.createdAt) }}</td>
+              <td class="ticket-comments">
+                <span class="comment-count">💬 {{ ticket.commentCount }}</span>
+              </td>
+              <td>
+                <button class="btn btn-small" (click)="navigateToDetail(ticket.id)">
+                  View
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalCount) }} of {{ totalCount }} tickets
+      </div>
+      <div class="pagination-controls">
+        <button 
+          class="btn btn-small" 
+          [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)">
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button 
+          class="btn btn-small" 
+          [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)">
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>

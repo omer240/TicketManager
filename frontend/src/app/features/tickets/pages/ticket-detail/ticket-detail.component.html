@@ -1,0 +1,194 @@
+<div class="ticket-detail-container">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading ticket...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (errorMessage && !ticket) {
+    <div class="error-container">
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+      <button class="btn btn-secondary" (click)="goBack()">
+        ← Back to List
+      </button>
+    </div>
+  }
+
+  <!-- Ticket Content -->
+  @else if (ticket) {
+    <div class="ticket-content">
+      <!-- Header -->
+      <div class="ticket-header">
+        <button class="btn-back" (click)="goBack()">
+          ← Back
+        </button>
+        <div class="header-actions">
+          @if (!isEditMode) {
+            <button class="btn btn-primary" (click)="toggleEditMode()">
+              Edit Ticket
+            </button>
+          } @else {
+            <button class="btn btn-secondary" (click)="toggleEditMode()" [disabled]="isSaving">
+              Cancel
+            </button>
+            <button class="btn btn-primary" (click)="saveChanges()" [disabled]="isSaving">
+              {{ isSaving ? 'Saving...' : 'Save Changes' }}
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-error">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <!-- View Mode -->
+      @if (!isEditMode) {
+        <div class="ticket-info">
+          <div class="info-header">
+            <span class="ticket-id">#{{ ticket.id }}</span>
+            <h1 class="ticket-title">{{ ticket.title }}</h1>
+          </div>
+
+          <div class="meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Status:</span>
+              <span class="badge badge-status" [style.background-color]="getStatusColor(ticket.status)">
+                {{ getStatusLabel(ticket.status) }}
+              </span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Priority:</span>
+              <span class="badge badge-priority" [style.background-color]="getPriorityColor(ticket.priority)">
+                {{ getPriorityLabel(ticket.priority) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Description</h3>
+            <p class="description">{{ ticket.description }}</p>
+          </div>
+
+          <div class="section">
+            <h3>Details</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Assigned To:</span>
+                <span class="detail-value">{{ ticket.assignedToUserId || 'Unassigned' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Created By:</span>
+                <span class="detail-value">{{ ticket.createdByUserId }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Created:</span>
+                <span class="detail-value">{{ formatDate(ticket.createdAt) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Last Updated:</span>
+                <span class="detail-value">{{ formatDate(ticket.updatedAt) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Comments:</span>
+                <span class="detail-value">💬 {{ ticket.commentCount }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Status Update -->
+          @if (canEditStatus) {
+            <div class="section">
+              <h3>Quick Status Update</h3>
+              <div class="status-buttons">
+                @for (option of statusOptions; track option.value) {
+                  <button 
+                    class="status-btn"
+                    [class.active]="ticket.status === option.value"
+                    [style.background-color]="ticket.status === option.value ? getStatusColor(option.value) : ''"
+                    (click)="updateStatus(option.value)">
+                    {{ option.label }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Edit Mode -->
+      @else {
+        <form [formGroup]="editForm" class="edit-form">
+          <div class="form-group">
+            <label for="title">Title *</label>
+            <input 
+              id="title"
+              type="text" 
+              formControlName="title"
+              placeholder="Enter ticket title"
+              [class.invalid]="editForm.get('title')?.invalid && editForm.get('title')?.touched"
+            />
+            @if (editForm.get('title')?.invalid && editForm.get('title')?.touched) {
+              <span class="error-text">Title is required (max 200 characters)</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description *</label>
+            <textarea 
+              id="description"
+              formControlName="description"
+              rows="6"
+              placeholder="Enter ticket description"
+              [class.invalid]="editForm.get('description')?.invalid && editForm.get('description')?.touched"
+            ></textarea>
+            @if (editForm.get('description')?.invalid && editForm.get('description')?.touched) {
+              <span class="error-text">Description is required (max 2000 characters)</span>
+            }
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="status">Status *</label>
+              <select id="status" formControlName="status">
+                @for (option of statusOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="priority">Priority *</label>
+              <select id="priority" formControlName="priority">
+                @for (option of priorityOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="assignedTo">Assigned To (User ID) *</label>
+            <input 
+              id="assignedTo"
+              type="text" 
+              formControlName="assignedToUserId"
+              placeholder="Enter user ID"
+              [class.invalid]="editForm.get('assignedToUserId')?.invalid && editForm.get('assignedToUserId')?.touched"
+            />
+            @if (editForm.get('assignedToUserId')?.invalid && editForm.get('assignedToUserId')?.touched) {
+              <span class="error-text">Assigned user is required</span>
+            }
+          </div>
+        </form>
+      }
+    </div>
+  }
+</div>

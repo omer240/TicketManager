@@ -1,14 +1,16 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { noAuthGuard } from './core/guards/no-auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/tickets',
+    redirectTo: '/auth/login',
     pathMatch: 'full'
   },
   {
     path: 'auth',
+    canActivate: [noAuthGuard],
     children: [
       {
         path: 'login',
@@ -27,12 +29,20 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./features/tickets/ticket-list/ticket-list.component').then(m => m.TicketListComponent)
+        loadComponent: () => import('./features/tickets/pages/ticket-list/ticket-list.component').then(m => m.TicketListComponent)
+      },
+      {
+        path: 'create',
+        loadComponent: () => import('./features/tickets/pages/ticket-create/ticket-create.component').then(m => m.TicketCreateComponent)
+      },
+      {
+        path: ':id',
+        loadComponent: () => import('./features/tickets/pages/ticket-detail/ticket-detail.component').then(m => m.TicketDetailComponent)
       }
     ]
   },
   {
     path: '**',
-    redirectTo: '/tickets'
+    redirectTo: '/auth/login'
   }
 ];
