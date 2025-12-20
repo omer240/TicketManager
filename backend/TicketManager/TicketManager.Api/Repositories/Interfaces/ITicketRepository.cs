@@ -1,4 +1,4 @@
-﻿using TicketManager.Api.ApiModels.Common;
+﻿using TicketManager.Api.ApiModels.Common.Paging;
 using TicketManager.Api.ApiModels.Tickets;
 using TicketManager.Api.Domain.Entities;
 

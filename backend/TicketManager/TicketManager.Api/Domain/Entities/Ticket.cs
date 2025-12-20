@@ -18,8 +18,8 @@ namespace TicketManager.Api.Domain.Entities
         public string CreatedByUserId { get; set; } = default!;
         public ApplicationUser CreatedByUser { get; set; } = default!;
 
-        public string? AssignedToUserId { get; set; }
-        public ApplicationUser? AssignedToUser { get; set; }
+        public string AssignedToUserId { get; set; } = default!;
+        public ApplicationUser AssignedToUser { get; set; } = default!;
 
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

@@ -10,11 +10,6 @@ namespace TicketManager.Api.Repositories.Interfaces
 
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
 
-        Task<T?> FirstOrDefaultAsync(
-            Expression<Func<T, bool>> predicate,
-            bool asNoTracking = true,
-            CancellationToken ct = default);
-
-        IQueryable<T> Query(bool asNoTracking = true);
+        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate,bool asNoTracking = true,CancellationToken ct = default);
     }
 }

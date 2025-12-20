@@ -265,6 +265,7 @@ namespace TicketManager.Api.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AssignedToUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -377,7 +378,8 @@ namespace TicketManager.Api.Migrations
                     b.HasOne("TicketManager.Api.Domain.Entities.ApplicationUser", "AssignedToUser")
                         .WithMany("AssignedTickets")
                         .HasForeignKey("AssignedToUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("TicketManager.Api.Domain.Entities.ApplicationUser", "CreatedByUser")
                         .WithMany("CreatedTickets")

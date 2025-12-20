@@ -25,24 +25,50 @@ namespace TicketManager.Api.Services.Implementations
             _userManager = userManager;
         }
 
-        public Task<PagedResult<Ticket>> GetMyCreatedAsync(string userId, TicketQuery query, CancellationToken ct = default)
-            => _ticketRepo.GetCreatedPagedAsync(userId, query, ct);
-
-        public Task<PagedResult<Ticket>> GetMyAssignedAsync(string userId, TicketQuery query, CancellationToken ct = default)
-            => _ticketRepo.GetAssignedPagedAsync(userId, query, ct);
-
-        public async Task<Ticket> CreateAsync(string userId, TicketCreateRequest request, CancellationToken ct = default)
+        public async Task<PagedResult<TicketDto>> GetMyCreatedAsync(string userId, TicketQuery query, CancellationToken ct = default)
         {
-            var creator = await _userManager.FindByIdAsync(userId);
-            if (creator is null)
-                throw new InvalidOperationException("Kullanıcı bulunamadı.");
+            var result = await _ticketRepo.GetCreatedPagedAsync(userId, query, ct);
+
+            return new PagedResult<TicketDto>
+            {
+                Items = result.Items.Select(ToDto).ToList(),
+                TotalCount = result.TotalCount,
+                Page = result.Page,
+                PageSize = result.PageSize
+            };
+        }
+           
+        public async Task<PagedResult<TicketDto>> GetMyAssignedAsync(string userId, TicketQuery query, CancellationToken ct = default)
+        {
+            var result = await _ticketRepo.GetAssignedPagedAsync(userId, query, ct);
+
+            return new PagedResult<TicketDto>
+            {
+                Items = result.Items.Select(ToDto).ToList(),
+                TotalCount = result.TotalCount,
+                Page = result.Page,
+                PageSize = result.PageSize
+            };
+        }
+
+        public async Task<TicketDto> CreateAsync(string userId, TicketCreateRequest request, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(request.Title))
+                throw ApiException.BadRequest("Title zorunludur.");
+
+            if (string.IsNullOrWhiteSpace(request.Description))
+                throw ApiException.BadRequest("Description zorunludur.");
 
             if (string.IsNullOrWhiteSpace(request.AssignedToUserId))
-                throw new InvalidOperationException("Ticket mutlaka bir kullanıcıya atanmalıdır.");
+                throw ApiException.BadRequest("Ticket mutlaka bir kullanıcıya atanmalıdır.");
+
+            var creator = await _userManager.FindByIdAsync(userId);
+            if (creator is null)
+                throw ApiException.BadRequest("Kullanıcı bulunamadı.");
 
             var assignee = await _userManager.FindByIdAsync(request.AssignedToUserId);
             if (assignee is null)
-                throw new InvalidOperationException("Atanacak kullanıcı bulunamadı.");
+                throw ApiException.BadRequest("Atanacak kullanıcı bulunamadı.");
 
             var now = DateTimeOffset.UtcNow;
 
@@ -63,18 +89,23 @@ namespace TicketManager.Api.Services.Implementations
             await _ticketRepo.AddAsync(ticket, ct);
             await _uow.SaveChangesAsync(ct);
 
-            return ticket;
-        
-    }
+            return ToDto(ticket);
 
-        public async Task<Ticket> UpdateAsync(string userId, int ticketId, TicketUpdateRequest request, CancellationToken ct = default)
+        }
+
+        public async Task<TicketDto> UpdateAsync(string userId, int ticketId, TicketUpdateRequest request, CancellationToken ct = default)
         {
             var ticket = await _ticketRepo.FirstOrDefaultAsync(t => t.Id == ticketId, asNoTracking: false, ct: ct);
             if (ticket is null)
-                throw new KeyNotFoundException("Ticket bulunamadı.");
+                throw ApiException.NotFound("Ticket bulunamadı.");
 
-            if (ticket.CreatedByUserId != userId && ticket.AssignedToUserId != userId)
-                throw new UnauthorizedAccessException("Bu ticket üzerinde işlem yetkin yok.");
+            EnsureTicketRelated(userId, ticket);
+
+            if (string.IsNullOrWhiteSpace(request.Title))
+                throw ApiException.BadRequest("Title zorunludur.");
+
+            if (string.IsNullOrWhiteSpace(request.Description))
+                throw ApiException.BadRequest("Description zorunludur.");
 
             ticket.Title = request.Title.Trim();
             ticket.Description = request.Description.Trim();
@@ -83,19 +114,18 @@ namespace TicketManager.Api.Services.Implementations
             ticket.UpdatedAt = DateTimeOffset.UtcNow;
 
             _ticketRepo.Update(ticket);
-
             await _uow.SaveChangesAsync(ct);
-            return ticket;
+
+            return ToDto(ticket);
         }
 
-        public async Task<Ticket> UpdateStatusAsync(string userId, int ticketId, TicketStatus status, CancellationToken ct = default)
+        public async Task<TicketDto> UpdateStatusAsync(string userId, int ticketId, TicketStatus status, CancellationToken ct = default)
         {
             var ticket = await _ticketRepo.FirstOrDefaultAsync(t => t.Id == ticketId, asNoTracking: false, ct: ct);
             if (ticket is null)
-                throw new KeyNotFoundException("Ticket bulunamadı.");
+                throw ApiException.NotFound("Ticket bulunamadı.");
 
-            if (ticket.CreatedByUserId != userId && ticket.AssignedToUserId != userId)
-                throw new UnauthorizedAccessException("Bu ticket üzerinde işlem yetkin yok.");
+            EnsureTicketRelated(userId, ticket);
 
             ticket.Status = status;
             ticket.UpdatedAt = DateTimeOffset.UtcNow;
@@ -103,47 +133,17 @@ namespace TicketManager.Api.Services.Implementations
             _ticketRepo.Update(ticket);
             await _uow.SaveChangesAsync(ct);
 
-            return ticket;
+            return ToDto(ticket);
         }
-
-        public async Task<Ticket> AssignAsync(string userId, int ticketId, string? assignedToUserId, CancellationToken ct = default)
-        {
-            var ticket = await _ticketRepo.FirstOrDefaultAsync(t => t.Id == ticketId, asNoTracking: false, ct: ct);
-            if (ticket is null)
-                throw new KeyNotFoundException("Ticket bulunamadı.");
-
-            if (ticket.CreatedByUserId != userId)
-                throw new UnauthorizedAccessException("Ticket atamasını sadece oluşturan kullanıcı değiştirebilir.");
-
-            if (!string.IsNullOrWhiteSpace(assignedToUserId))
-            {
-                var assignee = await _userManager.FindByIdAsync(assignedToUserId);
-                if (assignee is null)
-                    throw new InvalidOperationException("Atanacak kullanıcı bulunamadı.");
-
-                ticket.AssignedToUserId = assignedToUserId;
-            }
-            else
-            {
-
-                ticket.AssignedToUserId = null;
-            }
-
-            ticket.UpdatedAt = DateTimeOffset.UtcNow;
-
-            _ticketRepo.Update(ticket);
-            await _uow.SaveChangesAsync(ct);
-
-            return ticket;
-        }
-
-        public async Task<Ticket> GetDetailAsync(int ticketId, CancellationToken ct = default)
+        public async Task<TicketDto> GetDetailAsync(string userId, int ticketId, CancellationToken ct = default)
         {
             var ticket = await _ticketRepo.GetDetailAsync(ticketId, ct);
             if (ticket is null)
-                throw new KeyNotFoundException("Ticket bulunamadı.");
+                throw ApiException.NotFound("Ticket bulunamadı.");
 
-            return ticket;
+            EnsureTicketRelated(userId, ticket);
+
+            return ToDto(ticket);
         }
 
 

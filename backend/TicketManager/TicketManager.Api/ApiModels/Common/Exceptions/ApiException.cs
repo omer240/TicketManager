@@ -24,6 +24,9 @@
         public static ApiException Validation(string message = "Validation error")
             => new(400, ErrorCodes.Validation, message);
 
+        public static ApiException Unauthorized(string message = "Unauthorized")
+            => new(401, ErrorCodes.Unauthorized, message);
+
         public static ApiException ServerError(string message = "Server error")
             => new(500, ErrorCodes.ServerError, message);
     }

@@ -40,7 +40,7 @@ namespace TicketManager.Api.Data.Configurations
             builder.HasOne(t => t.AssignedToUser)
                 .WithMany(u => u.AssignedTickets)
                 .HasForeignKey(t => t.AssignedToUserId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(t => t.Comments)
                 .WithOne(c => c.Ticket)
