@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using TicketManager.Api.ApiModels.Common;
+using TicketManager.Api.ApiModels.Common.Exceptions;
+using TicketManager.Api.ApiModels.Common.Paging;
 using TicketManager.Api.ApiModels.Tickets;
 using TicketManager.Api.Domain.Entities;
 using TicketManager.Api.Domain.Enums;
@@ -144,5 +145,26 @@ namespace TicketManager.Api.Services.Implementations
 
             return ticket;
         }
+
+
+        private void EnsureTicketRelated(string userId, Ticket ticket)
+        {
+            if (ticket.CreatedByUserId != userId && ticket.AssignedToUserId != userId)
+                throw ApiException.Forbidden("Bu ticket üzerinde işlem yetkin yok.");
+        }
+
+        private TicketDto ToDto(Ticket t) => new()
+        {
+            Id = t.Id,
+            Title = t.Title,
+            Description = t.Description,
+            Status = t.Status,
+            Priority = t.Priority,
+            CreatedByUserId = t.CreatedByUserId,
+            AssignedToUserId = t.AssignedToUserId,
+            CreatedAt = t.CreatedAt,
+            UpdatedAt = t.UpdatedAt,
+            CommentCount = t.Comments?.Count ?? 0
+        };
     }
 }
