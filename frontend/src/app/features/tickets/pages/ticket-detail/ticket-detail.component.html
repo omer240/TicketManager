@@ -3,7 +3,7 @@
   @if (isLoading) {
     <div class="loading-container">
       <div class="spinner"></div>
-      <p>Bilet yükleniyor...</p>
+      <p>Talep yükleniyor...</p>
     </div>
   }
 
@@ -30,7 +30,7 @@
         <div class="header-actions">
           @if (canEdit && !isEditMode) {
             <button class="btn btn-primary" (click)="toggleEditMode()">
-              Bileti Düzenle
+              Talebi Düzenle
             </button>
             <button class="btn btn-danger" (click)="showDeleteConfirmation()" [disabled]="isSaving">
               Sil
@@ -136,7 +136,7 @@
               id="title"
               type="text" 
               formControlName="title"
-              placeholder="Bilet başlığını girin"
+              placeholder="Talep başlığını girin"
               [class.invalid]="editForm.get('title')?.invalid && editForm.get('title')?.touched"
             />
             @if (editForm.get('title')?.invalid && editForm.get('title')?.touched) {
@@ -150,7 +150,7 @@
               id="description"
               formControlName="description"
               rows="6"
-              placeholder="Bilet açıklamasını girin"
+              placeholder="Talep açıklamasını girin"
               [class.invalid]="editForm.get('description')?.invalid && editForm.get('description')?.touched"
             ></textarea>
             @if (editForm.get('description')?.invalid && editForm.get('description')?.touched) {
@@ -206,9 +206,9 @@
   <!-- Delete Confirmation Modal -->
   @if (showDeleteModal) {
     <app-confirm-modal
-      title="Bileti Sil"
-      message="Bu bileti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm yorumlar da silinecektir."
-      confirmText="Bileti Sil"
+      title="Talebi Sil"
+      message="Bu talebi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm yorumlar da silinecektir."
+      confirmText="Talebi Sil"
       cancelText="İptal"
       type="danger"
       confirmIcon="trash"

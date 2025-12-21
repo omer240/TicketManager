@@ -4,7 +4,7 @@
       <button class="btn-back" (click)="goBack()">
         ← Listeye Dön
       </button>
-      <h1>Yeni Bilet Oluştur</h1>
+      <h1>Yeni Talep Oluştur</h1>
     </div>
 
     @if (errorMessage) {
@@ -20,7 +20,7 @@
           id="title"
           type="text" 
           formControlName="title"
-          placeholder="Bilet başlığını girin"
+          placeholder="Talep başlığını girin"
           [class.invalid]="title?.invalid && title?.touched"
         />
         @if (title?.invalid && title?.touched) {
@@ -41,7 +41,7 @@
           id="description"
           formControlName="description"
           rows="8"
-          placeholder="Bilet açıklamasını detaylı olarak girin..."
+          placeholder="Talep açıklamasını detaylı olarak girin..."
           [class.invalid]="description?.invalid && description?.touched"
         ></textarea>
         @if (description?.invalid && description?.touched) {
@@ -76,7 +76,7 @@
         </app-user-select>
         @if (assignedToUserId?.invalid && assignedToUserId?.touched) {
           <div class="error-text">
-            <span>Lütfen bu bileti atamak için bir kullanıcı seçin</span>
+            <span>Lütfen bu talebi atamak için bir kullanıcı seçin</span>
           </div>
         }
       </div>
@@ -93,7 +93,7 @@
           type="submit" 
           class="btn btn-primary"
           [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Oluşturuluyor...' : 'Bilet Oluştur' }}
+          {{ isSubmitting ? 'Oluşturuluyor...' : 'Talep Oluştur' }}
         </button>
       </div>
     </form>

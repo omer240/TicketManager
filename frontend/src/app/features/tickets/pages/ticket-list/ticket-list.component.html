@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="header">
     <div class="header-left">
-      <h1>Biletler</h1>
+      <h1>Talepler</h1>
       <div class="view-toggle">
         <button 
           class="toggle-btn" 
@@ -19,7 +19,7 @@
       </div>
     </div>
     <button class="btn btn-primary" (click)="navigateToCreate()">
-      <span>+ Yeni Bilet</span>
+      <span>+ Yeni Talep</span>
     </button>
   </div>
 
@@ -29,7 +29,7 @@
       <input 
         type="text" 
         formControlName="search" 
-        placeholder="Bilet ara..."
+        placeholder="Talep ara..."
         class="search-input"
       />
     </div>
@@ -63,17 +63,17 @@
   @if (isLoading) {
     <div class="loading-container">
       <div class="spinner"></div>
-      <p>Biletler yükleniyor...</p>
+      <p>Talepler yükleniyor...</p>
     </div>
   }
 
   <!-- Empty State -->
   @else if (tickets.length === 0 && !errorMessage) {
     <div class="empty-state">
-      <h3>Bilet bulunamadı</h3>
-      <p>{{ viewMode === 'myCreated' ? 'Henüz hiç bilet oluşturmadınız.' : 'Size atanmış bilet bulunmuyor.' }}</p>
+      <h3>Talep bulunamadı</h3>
+      <p>{{ viewMode === 'myCreated' ? 'Henüz hiç talep oluşturmadınız.' : 'Size atanmış talep bulunmuyor.' }}</p>
       <button class="btn btn-primary" (click)="navigateToCreate()">
-        İlk Biletinizi Oluşturun
+        İlk Talebinizi Oluşturun
       </button>
     </div>
   }
@@ -131,7 +131,7 @@
     <!-- Pagination -->
     <div class="pagination">
       <div class="pagination-info">
-        {{ totalCount }} biletten {{ (currentPage - 1) * pageSize + 1 }}-{{ Math.min(currentPage * pageSize, totalCount) }} arası gösteriliyor
+        {{ totalCount }} talepten {{ (currentPage - 1) * pageSize + 1 }}-{{ Math.min(currentPage * pageSize, totalCount) }} arası gösteriliyor
       </div>
       <div class="pagination-controls">
         <button 

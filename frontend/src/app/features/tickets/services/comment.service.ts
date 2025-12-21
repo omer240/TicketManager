@@ -26,7 +26,7 @@ export class CommentService {
    */
   add(request: CommentCreateRequest): Observable<ApiResponse<CommentDto>> {
     return this.http.post<ApiResponse<CommentDto>>(
-      `${this.API_URL}/api/Comments/Add`,
+      `${this.API_URL}/api/Comments/Create`,
       request
     );
   }
