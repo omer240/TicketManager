@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
 import { UserDto } from '../../../core/models/user.models';
+import { ApiResponse } from '../../../core/models/auth.models';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 
 @Component({
@@ -50,7 +51,7 @@ export class UserSelectComponent implements OnInit, ControlValueAccessor {
         return this.userService.getAssignees(search);
       })
     ).subscribe({
-      next: (response: any) => {
+      next: (response: ApiResponse<UserDto[]>) => {
         if (response.success && response.data) {
           this.users = response.data;
           this.filteredUsers = response.data;
@@ -67,7 +68,7 @@ export class UserSelectComponent implements OnInit, ControlValueAccessor {
   loadUsers(search?: string): void {
     this.isLoading = true;
     this.userService.getAssignees(search).subscribe({
-      next: (response: any) => {
+      next: (response: ApiResponse<UserDto[]>) => {
         if (response.success && response.data) {
           this.users = response.data;
           this.filteredUsers = response.data;
@@ -124,7 +125,7 @@ export class UserSelectComponent implements OnInit, ControlValueAccessor {
       } else {
         // Load all users to find the selected one
         this.userService.getAssignees().subscribe({
-          next: (response: any) => {
+          next: (response: ApiResponse<UserDto[]>) => {
             if (response.success && response.data) {
               const foundUser = response.data.find((u: UserDto) => u.id === userId);
               if (foundUser) {
