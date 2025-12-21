@@ -25,9 +25,9 @@ export class TicketCreateComponent implements OnInit {
   errorMessage = '';
 
   priorityOptions = [
-    { value: TicketPriority.Low, label: 'Low' },
-    { value: TicketPriority.Medium, label: 'Medium' },
-    { value: TicketPriority.High, label: 'High' }
+    { value: TicketPriority.Low, label: 'Düşük' },
+    { value: TicketPriority.Medium, label: 'Orta' },
+    { value: TicketPriority.High, label: 'Yüksek' }
   ];
 
   ngOnInit(): void {
@@ -60,13 +60,13 @@ export class TicketCreateComponent implements OnInit {
         if (response.success && response.data) {
           this.router.navigate(['/tickets', response.data.id]);
         } else {
-          this.errorMessage = response.error?.message || 'Failed to create ticket';
+          this.errorMessage = response.error?.message || 'Talep oluşturulamadı';
           this.isSubmitting = false;
         }
       },
       error: (error) => {
         console.error('Create ticket error:', error);
-        this.errorMessage = error.error?.error?.message || 'Failed to create ticket';
+        this.errorMessage = error.error?.error?.message || 'Talep oluşturulamadı';
         this.isSubmitting = false;
       }
     });

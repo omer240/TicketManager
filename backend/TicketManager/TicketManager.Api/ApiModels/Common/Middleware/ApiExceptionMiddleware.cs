@@ -8,6 +8,12 @@ namespace TicketManager.Api.ApiModels.Common.Middleware
     {
         private readonly RequestDelegate _next;
 
+        // Response JSON'larının camelCase (success, data, error) gelmesi için
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         public ApiExceptionMiddleware(RequestDelegate next)
         {
             _next = next;
@@ -25,7 +31,7 @@ namespace TicketManager.Api.ApiModels.Common.Middleware
                 context.Response.StatusCode = ex.StatusCode;
 
                 var response = ApiResponse<object>.Fail(ex.Code, ex.Message);
-                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response, JsonOptions));
             }
             catch (Exception)
             {
@@ -33,7 +39,7 @@ namespace TicketManager.Api.ApiModels.Common.Middleware
                 context.Response.StatusCode = 500;
 
                 var response = ApiResponse<object>.Fail(ErrorCodes.ServerError, "Unexpected error occurred.");
-                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response, JsonOptions));
             }
         }
     }

@@ -58,13 +58,13 @@ export class LoginComponent {
             this.router.navigate([this.returnUrl]);
           }, 500);
         } else {
-          this.errorMessage = response.error?.message || 'Login failed';
+          this.errorMessage = response.error?.message || 'Giriş başarısız';
           this.isLoading = false;
         }
       },
       error: (error) => {
         console.error('Login error:', error);
-        this.errorMessage = error.error?.error?.message || 'Invalid email or password';
+        this.errorMessage = error.error?.error?.message || 'Geçersiz e-posta veya şifre';
         this.isLoading = false;
       }
     });

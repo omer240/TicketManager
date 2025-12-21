@@ -83,13 +83,13 @@ export class TicketDetailComponent implements OnInit {
           this.ticket = response.data;
           this.initializeForm();
         } else {
-          this.errorMessage = response.error?.message || 'Failed to load ticket';
+          this.errorMessage = response.error?.message || 'Talep yüklenemedi';
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Load ticket error:', error);
-        this.errorMessage = 'Failed to load ticket';
+        this.errorMessage = 'Talep yüklenemedi';
         this.isLoading = false;
       }
     });
@@ -104,13 +104,13 @@ export class TicketDetailComponent implements OnInit {
         if (response.success && response.data) {
           this.comments = response.data;
         } else {
-          this.commentError = 'Failed to load comments';
+          this.commentError = 'Yorumlar yüklenemedi';
         }
         this.isLoadingComments = false;
       },
       error: (error) => {
         console.error('Load comments error:', error);
-        this.commentError = 'Failed to load comments';
+        this.commentError = 'Yorumlar yüklenemedi';
         this.isLoadingComments = false;
       }
     });
@@ -156,13 +156,13 @@ export class TicketDetailComponent implements OnInit {
           this.isEditMode = false;
           this.initializeForm();
         } else {
-          this.errorMessage = response.error?.message || 'Failed to update ticket';
+          this.errorMessage = response.error?.message || 'Talep güncellenemedi';
         }
         this.isSaving = false;
       },
       error: (error) => {
         console.error('Update ticket error:', error);
-        this.errorMessage = error.error?.error?.message || 'Failed to update ticket';
+        this.errorMessage = error.error?.error?.message || 'Talep güncellenemedi';
         this.isSaving = false;
       }
     });
@@ -183,7 +183,7 @@ export class TicketDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Update status error:', error);
-        this.errorMessage = 'Failed to update status';
+        this.errorMessage = 'Durum güncellenemedi';
       }
     });
   }
@@ -212,13 +212,13 @@ export class TicketDetailComponent implements OnInit {
         if (response.success) {
           this.router.navigate(['/tickets']);
         } else {
-          this.errorMessage = response.error?.message || 'Failed to delete ticket';
+          this.errorMessage = response.error?.message || 'Talep silinemedi';
           this.isSaving = false;
         }
       },
       error: (error) => {
         console.error('Delete ticket error:', error);
-        this.errorMessage = error.error?.error?.message || 'Failed to delete ticket';
+        this.errorMessage = error.error?.error?.message || 'Talep silinemedi';
         this.isSaving = false;
       }
     });
@@ -243,13 +243,13 @@ export class TicketDetailComponent implements OnInit {
             }
             this.editingComment = null;
           } else {
-            this.commentError = 'Failed to update comment';
+            this.commentError = 'Yorum güncellenemedi';
           }
           this.isSubmittingComment = false;
         },
         error: (error) => {
           console.error('Update comment error:', error);
-          this.commentError = 'Failed to update comment';
+          this.commentError = 'Yorum güncellenemedi';
           this.isSubmittingComment = false;
         }
       });
@@ -268,13 +268,13 @@ export class TicketDetailComponent implements OnInit {
               this.ticket.commentCount = this.comments.length;
             }
           } else {
-            this.commentError = 'Failed to add comment';
+            this.commentError = 'Yorum eklenemedi';
           }
           this.isSubmittingComment = false;
         },
         error: (error) => {
           console.error('Add comment error:', error);
-          this.commentError = 'Failed to add comment';
+          this.commentError = 'Yorum eklenemedi';
           this.isSubmittingComment = false;
         }
       });
@@ -299,12 +299,12 @@ export class TicketDetailComponent implements OnInit {
             this.ticket.commentCount = this.comments.length;
           }
         } else {
-          this.commentError = 'Failed to delete comment';
+          this.commentError = 'Yorum silinemedi';
         }
       },
       error: (error) => {
         console.error('Delete comment error:', error);
-        this.commentError = 'Failed to delete comment';
+        this.commentError = 'Yorum silinemedi';
       }
     });
   }

@@ -54,13 +54,13 @@ export class RegisterComponent {
             this.router.navigate(['/tickets']);
           }, 500);
         } else {
-          this.errorMessage = response.error?.message || 'Registration failed';
+          this.errorMessage = response.error?.message || 'Kayıt başarısız';
           this.isLoading = false;
         }
       },
       error: (error) => {
         console.error('Register error:', error);
-        this.errorMessage = error.error?.error?.message || 'Registration failed. Please try again.';
+        this.errorMessage = error.error?.error?.message || 'Kayıt başarısız. Lütfen tekrar deneyin.';
         this.isLoading = false;
       }
     });

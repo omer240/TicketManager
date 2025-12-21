@@ -56,14 +56,14 @@ export class TicketListComponent implements OnInit {
   TicketStatus = TicketStatus;
   TicketPriority = TicketPriority;
   statusOptions = [
-    { value: TicketStatus.Open, label: 'Open' },
-    { value: TicketStatus.InProgress, label: 'In Progress' },
-    { value: TicketStatus.Done, label: 'Done' }
+    { value: TicketStatus.Open, label: 'Açık' },
+    { value: TicketStatus.InProgress, label: 'Devam Ediyor' },
+    { value: TicketStatus.Done, label: 'Tamamlandı' }
   ];
   priorityOptions = [
-    { value: TicketPriority.Low, label: 'Low' },
-    { value: TicketPriority.Medium, label: 'Medium' },
-    { value: TicketPriority.High, label: 'High' }
+    { value: TicketPriority.Low, label: 'Düşük' },
+    { value: TicketPriority.Medium, label: 'Orta' },
+    { value: TicketPriority.High, label: 'Yüksek' }
   ];
 
   ngOnInit(): void {
@@ -96,13 +96,13 @@ export class TicketListComponent implements OnInit {
           this.pageSize = response.data.pageSize;
           this.totalPages = Math.ceil(this.totalCount / this.pageSize);
         } else {
-          this.errorMessage = response.error?.message || 'Failed to load tickets';
+          this.errorMessage = response.error?.message || 'Talepler yüklenemedi';
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Load tickets error:', error);
-        this.errorMessage = 'Failed to load tickets';
+        this.errorMessage = 'Talepler yüklenemedi';
         this.isLoading = false;
       }
     });
