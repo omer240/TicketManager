@@ -1,8 +1,8 @@
 <div class="register-container">
   <div class="register-card">
     <div class="register-header">
-      <h1>Create Account</h1>
-      <p>Sign up to get started</p>
+      <h1>Hesap Oluştur</h1>
+      <p>Başlamak için kayıt olun</p>
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
@@ -14,24 +14,24 @@
 
       <!-- Full Name Field -->
       <div class="form-group">
-        <label for="fullName">Full Name</label>
+        <label for="fullName">Ad Soyad</label>
         <input
           id="fullName"
           type="text"
           formControlName="fullName"
-          placeholder="Enter your full name"
+          placeholder="Adınızı ve soyadınızı girin"
           [class.invalid]="fullName?.invalid && fullName?.touched"
         />
         @if (fullName?.invalid && fullName?.touched) {
           <div class="error-text">
             @if (fullName?.errors?.['required']) {
-              <span>Full name is required</span>
+              <span>Ad soyad zorunludur</span>
             }
             @if (fullName?.errors?.['minlength']) {
-              <span>Name must be at least 3 characters</span>
+              <span>Ad soyad en az 3 karakter olmalıdır</span>
             }
             @if (fullName?.errors?.['maxlength']) {
-              <span>Name must not exceed 150 characters</span>
+              <span>Ad soyad 150 karakteri geçemez</span>
             }
           </div>
         }
@@ -39,21 +39,21 @@
 
       <!-- Email Field -->
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">E-posta</label>
         <input
           id="email"
           type="email"
           formControlName="email"
-          placeholder="Enter your email"
+          placeholder="E-posta adresinizi girin"
           [class.invalid]="email?.invalid && email?.touched"
         />
         @if (email?.invalid && email?.touched) {
           <div class="error-text">
             @if (email?.errors?.['required']) {
-              <span>Email is required</span>
+              <span>E-posta zorunludur</span>
             }
             @if (email?.errors?.['email']) {
-              <span>Please enter a valid email</span>
+              <span>Lütfen geçerli bir e-posta girin</span>
             }
           </div>
         }
@@ -61,21 +61,21 @@
 
       <!-- Password Field -->
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">Şifre</label>
         <input
           id="password"
           type="password"
           formControlName="password"
-          placeholder="Enter your password"
+          placeholder="Şifrenizi girin"
           [class.invalid]="password?.invalid && password?.touched"
         />
         @if (password?.invalid && password?.touched) {
           <div class="error-text">
             @if (password?.errors?.['required']) {
-              <span>Password is required</span>
+              <span>Şifre zorunludur</span>
             }
             @if (password?.errors?.['minlength']) {
-              <span>Password must be at least 6 characters</span>
+              <span>Şifre en az 6 karakter olmalıdır</span>
             }
           </div>
         }
@@ -88,15 +88,15 @@
         [disabled]="isLoading"
       >
         @if (isLoading) {
-          <span>Creating account...</span>
+          <span>Hesap oluşturuluyor...</span>
         } @else {
-          <span>Sign Up</span>
+          <span>Kayıt Ol</span>
         }
       </button>
 
       <!-- Login Link -->
       <div class="login-link">
-        <p>Already have an account? <a routerLink="/auth/login">Sign in here</a></p>
+        <p>Zaten hesabınız var mı? <a routerLink="/auth/login">Giriş yapın</a></p>
       </div>
     </form>
   </div>

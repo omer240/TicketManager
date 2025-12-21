@@ -23,8 +23,8 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 export class UserSelectComponent implements OnInit, ControlValueAccessor {
   private userService = inject(UserService);
   
-  @Input() label: string = 'Assign To';
-  @Input() placeholder: string = 'Search and select user...';
+  @Input() label: string = 'Atanan Kişi';
+  @Input() placeholder: string = 'Kullanıcı ara ve seç...';
   @Input() required: boolean = false;
   @Input() disabled: boolean = false;
 

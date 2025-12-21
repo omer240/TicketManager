@@ -64,19 +64,19 @@ export interface PagedResult<T> {
 // Helper functions for display
 export function getStatusLabel(status: TicketStatus): string {
   switch (status) {
-    case TicketStatus.Open: return 'Open';
-    case TicketStatus.InProgress: return 'In Progress';
-    case TicketStatus.Done: return 'Done';
-    default: return 'Unknown';
+    case TicketStatus.Open: return 'Açık';
+    case TicketStatus.InProgress: return 'Devam Ediyor';
+    case TicketStatus.Done: return 'Tamamlandı';
+    default: return 'Bilinmiyor';
   }
 }
 
 export function getPriorityLabel(priority: TicketPriority): string {
   switch (priority) {
-    case TicketPriority.Low: return 'Low';
-    case TicketPriority.Medium: return 'Medium';
-    case TicketPriority.High: return 'High';
-    default: return 'Unknown';
+    case TicketPriority.Low: return 'Düşük';
+    case TicketPriority.Medium: return 'Orta';
+    case TicketPriority.High: return 'Yüksek';
+    default: return 'Bilinmiyor';
   }
 }
 

@@ -2,7 +2,7 @@
   <div class="login-card">
     <div class="login-header">
       <h1>Ticket Manager</h1>
-      <p>Sign in to your account</p>
+      <p>Hesabınıza giriş yapın</p>
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
@@ -15,21 +15,21 @@
 
       <!-- Email Field -->
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">E-posta</label>
         <input
           id="email"
           type="email"
           formControlName="email"
-          placeholder="Enter your email"
+          placeholder="E-posta adresinizi girin"
           [class.invalid]="email?.invalid && email?.touched"
         />
         @if (email?.invalid && email?.touched) {
           <div class="error-text">
             @if (email?.errors?.['required']) {
-              <span>Email is required</span>
+              <span>E-posta zorunludur</span>
             }
             @if (email?.errors?.['email']) {
-              <span>Please enter a valid email</span>
+              <span>Lütfen geçerli bir e-posta girin</span>
             }
           </div>
         }
@@ -37,21 +37,21 @@
 
       <!-- Password Field -->
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">Şifre</label>
         <input
           id="password"
           type="password"
           formControlName="password"
-          placeholder="Enter your password"
+          placeholder="Şifrenizi girin"
           [class.invalid]="password?.invalid && password?.touched"
         />
         @if (password?.invalid && password?.touched) {
           <div class="error-text">
             @if (password?.errors?.['required']) {
-              <span>Password is required</span>
+              <span>Şifre zorunludur</span>
             }
             @if (password?.errors?.['minlength']) {
-              <span>Password must be at least 6 characters</span>
+              <span>Şifre en az 6 karakter olmalıdır</span>
             }
           </div>
         }
@@ -64,15 +64,15 @@
         [disabled]="isLoading"
       >
         @if (isLoading) {
-          <span>Signing in...</span>
+          <span>Giriş yapılıyor...</span>
         } @else {
-          <span>Sign In</span>
+          <span>Giriş Yap</span>
         }
       </button>
 
       <!-- Register Link -->
       <div class="register-link">
-        <p>Don't have an account? <a routerLink="/auth/register">Register here</a></p>
+        <p>Hesabınız yok mu? <a routerLink="/auth/register">Kayıt olun</a></p>
       </div>
     </form>
   </div>

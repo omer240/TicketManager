@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginRequest } from '../../../core/models/auth.models';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private toastService = inject(ToastService);
 
   loginForm: FormGroup;
   isLoading = false;
@@ -51,7 +53,10 @@ export class LoginComponent {
     this.authService.login(credentials).subscribe({
       next: (response) => {
         if (response.success) {
-          this.router.navigate([this.returnUrl]);
+          this.toastService.success('Giriş başarılı! Yönlendiriliyorsunuz...');
+          setTimeout(() => {
+            this.router.navigate([this.returnUrl]);
+          }, 500);
         } else {
           this.errorMessage = response.error?.message || 'Login failed';
           this.isLoading = false;

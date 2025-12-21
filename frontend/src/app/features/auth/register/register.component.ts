@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { RegisterRequest } from '../../../core/models/auth.models';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -16,6 +17,7 @@ export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   registerForm: FormGroup;
   isLoading = false;
@@ -47,7 +49,10 @@ export class RegisterComponent {
     this.authService.register(userData).subscribe({
       next: (response) => {
         if (response.success) {
-          this.router.navigate(['/tickets']);
+          this.toastService.success('Hesabınız oluşturuldu! Hoş geldiniz...');
+          setTimeout(() => {
+            this.router.navigate(['/tickets']);
+          }, 500);
         } else {
           this.errorMessage = response.error?.message || 'Registration failed';
           this.isLoading = false;

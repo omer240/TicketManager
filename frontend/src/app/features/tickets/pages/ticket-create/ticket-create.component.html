@@ -2,9 +2,9 @@
   <div class="create-card">
     <div class="header">
       <button class="btn-back" (click)="goBack()">
-        ← Back to List
+        ← Listeye Dön
       </button>
-      <h1>Create New Ticket</h1>
+      <h1>Yeni Bilet Oluştur</h1>
     </div>
 
     @if (errorMessage) {
@@ -15,42 +15,42 @@
 
     <form [formGroup]="createForm" (ngSubmit)="onSubmit()" class="create-form">
       <div class="form-group">
-        <label for="title">Title *</label>
+        <label for="title">Başlık *</label>
         <input 
           id="title"
           type="text" 
           formControlName="title"
-          placeholder="Enter ticket title"
+          placeholder="Bilet başlığını girin"
           [class.invalid]="title?.invalid && title?.touched"
         />
         @if (title?.invalid && title?.touched) {
           <div class="error-text">
             @if (title?.errors?.['required']) {
-              <span>Title is required</span>
+              <span>Başlık gereklidir</span>
             }
             @if (title?.errors?.['maxlength']) {
-              <span>Title must not exceed 200 characters</span>
+              <span>Başlık 200 karakteri geçmemelidir</span>
             }
           </div>
         }
       </div>
 
       <div class="form-group">
-        <label for="description">Description *</label>
+        <label for="description">Açıklama *</label>
         <textarea 
           id="description"
           formControlName="description"
           rows="8"
-          placeholder="Describe the ticket in detail..."
+          placeholder="Bilet açıklamasını detaylı olarak girin..."
           [class.invalid]="description?.invalid && description?.touched"
         ></textarea>
         @if (description?.invalid && description?.touched) {
           <div class="error-text">
             @if (description?.errors?.['required']) {
-              <span>Description is required</span>
+              <span>Açıklama gereklidir</span>
             }
             @if (description?.errors?.['maxlength']) {
-              <span>Description must not exceed 2000 characters</span>
+              <span>Açıklama 2000 karakteri geçmemelidir</span>
             }
           </div>
         }
@@ -58,7 +58,7 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="priority">Priority *</label>
+          <label for="priority">Öncelik *</label>
           <select id="priority" formControlName="priority">
             @for (option of priorityOptions; track option.value) {
               <option [value]="option.value">{{ option.label }}</option>
@@ -70,13 +70,13 @@
       <div class="form-group">
         <app-user-select
           formControlName="assignedToUserId"
-          label="Assign To"
-          placeholder="Search and select user..."
+          label="Atanan Kişi"
+          placeholder="Kullanıcı arayın ve seçin..."
           [required]="true">
         </app-user-select>
         @if (assignedToUserId?.invalid && assignedToUserId?.touched) {
           <div class="error-text">
-            <span>Please select a user to assign this ticket</span>
+            <span>Lütfen bu bileti atamak için bir kullanıcı seçin</span>
           </div>
         }
       </div>
@@ -87,13 +87,13 @@
           class="btn btn-secondary" 
           (click)="goBack()"
           [disabled]="isSubmitting">
-          Cancel
+          İptal
         </button>
         <button 
           type="submit" 
           class="btn btn-primary"
           [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Creating...' : 'Create Ticket' }}
+          {{ isSubmitting ? 'Oluşturuluyor...' : 'Bilet Oluştur' }}
         </button>
       </div>
     </form>

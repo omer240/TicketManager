@@ -2,24 +2,24 @@
   <!-- Header -->
   <div class="header">
     <div class="header-left">
-      <h1>Tickets</h1>
+      <h1>Biletler</h1>
       <div class="view-toggle">
         <button 
           class="toggle-btn" 
           [class.active]="viewMode === 'myCreated'"
           (click)="switchView('myCreated')">
-          Created by Me
+          Oluşturduklarım
         </button>
         <button 
           class="toggle-btn" 
           [class.active]="viewMode === 'myAssigned'"
           (click)="switchView('myAssigned')">
-          Assigned to Me
+          Bana Atananlar
         </button>
       </div>
     </div>
     <button class="btn btn-primary" (click)="navigateToCreate()">
-      <span>+ New Ticket</span>
+      <span>+ Yeni Bilet</span>
     </button>
   </div>
 
@@ -29,13 +29,13 @@
       <input 
         type="text" 
         formControlName="search" 
-        placeholder="Search tickets..."
+        placeholder="Bilet ara..."
         class="search-input"
       />
     </div>
     <div class="filter-group">
       <select formControlName="status" class="filter-select">
-        <option value="">All Statuses</option>
+        <option value="">Tüm Durumlar</option>
         @for (option of statusOptions; track option.value) {
           <option [value]="option.value">{{ option.label }}</option>
         }
@@ -43,13 +43,13 @@
     </div>
     <div class="filter-group">
       <select formControlName="priority" class="filter-select">
-        <option value="">All Priorities</option>
+        <option value="">Tüm Öncelikler</option>
         @for (option of priorityOptions; track option.value) {
           <option [value]="option.value">{{ option.label }}</option>
         }
       </select>
     </div>
-    <button class="btn btn-secondary" (click)="clearFilters()">Clear</button>
+    <button class="btn btn-secondary" (click)="clearFilters()">Temizle</button>
   </div>
 
   <!-- Error Message -->
@@ -63,17 +63,17 @@
   @if (isLoading) {
     <div class="loading-container">
       <div class="spinner"></div>
-      <p>Loading tickets...</p>
+      <p>Biletler yükleniyor...</p>
     </div>
   }
 
   <!-- Empty State -->
   @else if (tickets.length === 0 && !errorMessage) {
     <div class="empty-state">
-      <h3>No tickets found</h3>
-      <p>{{ viewMode === 'myCreated' ? 'You haven\'t created any tickets yet.' : 'No tickets assigned to you.' }}</p>
+      <h3>Bilet bulunamadı</h3>
+      <p>{{ viewMode === 'myCreated' ? 'Henüz hiç bilet oluşturmadınız.' : 'Size atanmış bilet bulunmuyor.' }}</p>
       <button class="btn btn-primary" (click)="navigateToCreate()">
-        Create Your First Ticket
+        İlk Biletinizi Oluşturun
       </button>
     </div>
   }
@@ -85,12 +85,12 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Created</th>
-            <th>Comments</th>
-            <th>Actions</th>
+            <th>Başlık</th>
+            <th>Durum</th>
+            <th>Öncelik</th>
+            <th>Oluşturulma</th>
+            <th>Yorumlar</th>
+            <th>İşlemler</th>
           </tr>
         </thead>
         <tbody>
@@ -119,7 +119,7 @@
               </td>
               <td>
                 <button class="btn btn-small" (click)="navigateToDetail(ticket.id)">
-                  View
+                  Görüntüle
                 </button>
               </td>
             </tr>
@@ -131,21 +131,21 @@
     <!-- Pagination -->
     <div class="pagination">
       <div class="pagination-info">
-        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalCount) }} of {{ totalCount }} tickets
+        {{ totalCount }} biletten {{ (currentPage - 1) * pageSize + 1 }}-{{ Math.min(currentPage * pageSize, totalCount) }} arası gösteriliyor
       </div>
       <div class="pagination-controls">
         <button 
           class="btn btn-small" 
           [disabled]="currentPage === 1"
           (click)="goToPage(currentPage - 1)">
-          Previous
+          Önceki
         </button>
-        <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+        <span class="page-info">Sayfa {{ currentPage }} / {{ totalPages }}</span>
         <button 
           class="btn btn-small" 
           [disabled]="currentPage === totalPages"
           (click)="goToPage(currentPage + 1)">
-          Next
+          Sonraki
         </button>
       </div>
     </div>
