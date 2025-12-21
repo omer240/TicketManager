@@ -20,6 +20,8 @@ export interface TicketDto {
   priority: TicketPriority;
   createdByUserId: string;
   assignedToUserId: string | null;
+  createdByUserFullName: string | null;
+  assignedToUserFullName: string | null;
   createdAt: string;
   updatedAt: string;
   commentCount: number;
