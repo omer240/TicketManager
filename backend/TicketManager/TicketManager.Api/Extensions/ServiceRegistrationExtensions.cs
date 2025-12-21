@@ -24,6 +24,7 @@ namespace TicketManager.Api.Extensions
                 .AddIdentity()
                 .AddJwt(config)
                 .AddCommonModule()
+                .AddUserModule()
                 .AddTicketModule()
                 .AddCommentModule()
                 .AddAuthModule();
@@ -102,6 +103,13 @@ namespace TicketManager.Api.Extensions
         private static IServiceCollection AddCommonModule(this IServiceCollection services)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            return services;
+        }
+
+        private static IServiceCollection AddUserModule(this IServiceCollection services)
+        {
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserService, UserService>();
             return services;
         }
 

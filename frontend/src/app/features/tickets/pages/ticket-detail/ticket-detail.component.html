@@ -28,11 +28,15 @@
           ← Back
         </button>
         <div class="header-actions">
-          @if (!isEditMode) {
+          @if (canEdit && !isEditMode) {
             <button class="btn btn-primary" (click)="toggleEditMode()">
               Edit Ticket
             </button>
-          } @else {
+            <button class="btn btn-danger" (click)="showDeleteConfirmation()" [disabled]="isSaving">
+              Delete
+            </button>
+          }
+          @if (canEdit && isEditMode) {
             <button class="btn btn-secondary" (click)="toggleEditMode()" [disabled]="isSaving">
               Cancel
             </button>
@@ -154,38 +158,13 @@
             }
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="status">Status *</label>
-              <select id="status" formControlName="status">
-                @for (option of statusOptions; track option.value) {
-                  <option [value]="option.value">{{ option.label }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="priority">Priority *</label>
-              <select id="priority" formControlName="priority">
-                @for (option of priorityOptions; track option.value) {
-                  <option [value]="option.value">{{ option.label }}</option>
-                }
-              </select>
-            </div>
-          </div>
-
           <div class="form-group">
-            <label for="assignedTo">Assigned To (User ID) *</label>
-            <input 
-              id="assignedTo"
-              type="text" 
-              formControlName="assignedToUserId"
-              placeholder="Enter user ID"
-              [class.invalid]="editForm.get('assignedToUserId')?.invalid && editForm.get('assignedToUserId')?.touched"
-            />
-            @if (editForm.get('assignedToUserId')?.invalid && editForm.get('assignedToUserId')?.touched) {
-              <span class="error-text">Assigned user is required</span>
-            }
+            <label for="priority">Priority *</label>
+            <select id="priority" formControlName="priority">
+              @for (option of priorityOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
           </div>
         </form>
       }
@@ -222,5 +201,19 @@
         </div>
       }
     </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteModal) {
+    <app-confirm-modal
+      title="Delete Ticket"
+      message="Are you sure you want to delete this ticket? This action cannot be undone and all comments will also be deleted."
+      confirmText="Delete Ticket"
+      cancelText="Cancel"
+      type="danger"
+      confirmIcon="trash"
+      (confirm)="confirmDelete()"
+      (cancel)="cancelDelete()">
+    </app-confirm-modal>
   }
 </div>

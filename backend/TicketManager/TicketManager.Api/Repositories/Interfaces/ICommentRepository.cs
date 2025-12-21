@@ -9,6 +9,5 @@ namespace TicketManager.Api.Repositories.Interfaces
         Task<Comment?> GetByIdAsync(int id,bool asNoTracking = true,CancellationToken ct = default);
 
         Task<IReadOnlyList<Comment>> GetByUserIdAsync(string userId, CancellationToken ct = default);
-
     }
 }

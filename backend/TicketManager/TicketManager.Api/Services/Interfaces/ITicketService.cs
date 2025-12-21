@@ -15,5 +15,7 @@ namespace TicketManager.Api.Services.Interfaces
 
         Task<TicketDto> UpdateStatusAsync(string userId, int ticketId, TicketStatus status, CancellationToken ct = default);
         Task<TicketDto> GetDetailAsync(string userId, int ticketId, CancellationToken ct = default);
+
+        Task DeleteAsync(string userId, int ticketId, CancellationToken ct = default);
     }
 }

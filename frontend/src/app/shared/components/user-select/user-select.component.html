@@ -1,0 +1,93 @@
+<div class="user-select-container">
+  <label *ngIf="label" class="label">
+    {{ label }}
+    <span *ngIf="required" class="required">*</span>
+  </label>
+
+  <div class="select-wrapper">
+    <!-- Selected User Display -->
+    <div class="selected-value" (click)="toggleDropdown()" [class.disabled]="disabled" [class.open]="isOpen">
+      @if (selectedUser) {
+        <div class="user-display">
+          <div class="user-avatar">{{ selectedUser.fullName.charAt(0).toUpperCase() }}</div>
+          <span class="user-name">{{ selectedUser.fullName }}</span>
+          @if (!disabled) {
+            <button type="button" class="clear-btn" (click)="clearSelection(); $event.stopPropagation()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          }
+        </div>
+      } @else {
+        <span class="placeholder">{{ placeholder }}</span>
+      }
+      
+      @if (!disabled) {
+        <svg class="dropdown-icon" [class.rotate]="isOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      }
+    </div>
+
+    <!-- Dropdown -->
+    @if (isOpen) {
+      <div class="dropdown-menu">
+        <!-- Search Input -->
+        <div class="search-box">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            [value]="searchText"
+            (input)="onSearchChange($any($event.target).value)"
+            placeholder="Search users..."
+            autofocus
+          />
+        </div>
+
+        <!-- Users List -->
+        <div class="users-list">
+          @if (isLoading) {
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <span>Loading users...</span>
+            </div>
+          } @else if (filteredUsers.length === 0) {
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="19" y1="8" x2="19" y2="14"/>
+                <line x1="22" y1="11" x2="16" y2="11"/>
+              </svg>
+              <span>No users found</span>
+            </div>
+          } @else {
+            @for (user of filteredUsers; track user.id) {
+              <div 
+                class="user-item" 
+                [class.selected]="selectedUser?.id === user.id"
+                (click)="selectUser(user)">
+                <div class="user-avatar">{{ user.fullName.charAt(0).toUpperCase() }}</div>
+                <span class="user-name">{{ user.fullName }}</span>
+                @if (selectedUser?.id === user.id) {
+                  <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+      
+      <!-- Backdrop -->
+      <div class="dropdown-backdrop" (click)="closeDropdown()"></div>
+    }
+  </div>
+</div>

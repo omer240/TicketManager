@@ -39,15 +39,18 @@ namespace TicketManager.Api.Repositories.Implementations
             return await ToPagedResultAsync(q, query, ct);
         }
 
-        public async  Task<Ticket?> GetDetailAsync(int ticketId, CancellationToken ct = default)
+        public async  Task<Ticket?> GetDetailAsync(int ticketId, string userId, CancellationToken ct = default)
         {
             return await _set
-                .AsNoTracking()
-                .Include(t => t.CreatedByUser)
-                .Include(t => t.AssignedToUser)
-                .Include(t => t.Comments)
-                    .ThenInclude(c => c.CreatedByUser)
-                .FirstOrDefaultAsync(t => t.Id == ticketId, ct);
+             .AsNoTracking()
+             .Include(t => t.CreatedByUser)
+             .Include(t => t.AssignedToUser)
+             .Include(t => t.Comments)
+                 .ThenInclude(c => c.CreatedByUser)
+             .FirstOrDefaultAsync(t =>
+                 t.Id == ticketId &&
+                 (t.CreatedByUserId == userId || t.AssignedToUserId == userId),
+                 ct);
         }
 
 

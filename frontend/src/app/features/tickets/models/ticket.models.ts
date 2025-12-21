@@ -45,9 +45,7 @@ export interface TicketCreateRequest {
 export interface TicketUpdateRequest {
   title: string;
   description: string;
-  status: TicketStatus;
   priority: TicketPriority;
-  assignedToUserId: string;
 }
 
 export interface TicketStatusUpdateRequest {

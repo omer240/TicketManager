@@ -23,8 +23,7 @@ namespace TicketManager.Api.Controllers
 
         // GET api/comments/ByTicket?ticketId=5
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<IReadOnlyList<CommentDto>>>> ByTicket(
-            [FromQuery] int ticketId,
+        public async Task<ActionResult<ApiResponse<IReadOnlyList<CommentDto>>>> ByTicket([FromQuery] int ticketId,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -32,16 +31,10 @@ namespace TicketManager.Api.Controllers
             return Ok(ApiResponse<IReadOnlyList<CommentDto>>.Ok(list));
         }
 
-        public sealed class AddCommentRequest
-        {
-            public int TicketId { get; set; }
-            public string Text { get; set; } = default!;
-        }
 
-        // POST api/comments/Add
+        // POST api/comments/Create
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<CommentDto>>> Add(
-            [FromBody] AddCommentRequest request,
+        public async Task<ActionResult<ApiResponse<CommentDto>>> Create([FromBody] CommentCreateRequest request,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -57,9 +50,7 @@ namespace TicketManager.Api.Controllers
 
         // PUT api/comments/Update?commentId=10
         [HttpPut]
-        public async Task<ActionResult<ApiResponse<CommentDto>>> Update(
-            [FromQuery] int commentId,
-            [FromBody] CommentUpdateRequest request,
+        public async Task<ActionResult<ApiResponse<CommentDto>>> Update([FromQuery] int commentId,[FromBody] CommentUpdateRequest request,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -69,8 +60,7 @@ namespace TicketManager.Api.Controllers
 
         // DELETE api/comments/Delete?commentId=10
         [HttpDelete]
-        public async Task<ActionResult<ApiResponse<object>>> Delete(
-            [FromQuery] int commentId,
+        public async Task<ActionResult<ApiResponse<object>>> Delete([FromQuery] int commentId,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -78,11 +68,12 @@ namespace TicketManager.Api.Controllers
             return Ok(ApiResponse<object>.Ok(new { deleted = true }));
         }
 
+        //JWT içindeki NameIdentifier claimden giriş yapan kullanıcı bilgilerini okumak için kullanılan yardımcı metot
         private string GetUserIdOrThrow()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId))
-                throw ApiException.Unauthorized("User not authenticated.");
+                throw ApiException.Unauthorized("Kullanıcı kimliği doğrulanamadı.");
             return userId;
         }
 

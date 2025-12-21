@@ -10,6 +10,8 @@ namespace TicketManager.Api.Repositories.Interfaces
 
         Task<PagedResult<Ticket>> GetAssignedPagedAsync(string userId,TicketQuery query,CancellationToken ct = default);
 
-        Task<Ticket?> GetDetailAsync(int ticketId,CancellationToken ct = default);
+        Task<Ticket?> GetDetailAsync(int ticketId, string userId, CancellationToken ct = default);
+
+        
     }
 }

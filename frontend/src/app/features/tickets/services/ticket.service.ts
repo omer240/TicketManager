@@ -84,6 +84,16 @@ export class TicketService {
   }
 
   /**
+   * Delete ticket
+   */
+  delete(ticketId: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(
+      `${this.API_URL}/api/Tickets/Delete`,
+      { params: { ticketId: ticketId.toString() } }
+    );
+  }
+
+  /**
    * Build HTTP params from query object
    */
   private buildQueryParams(query?: TicketQuery): HttpParams {

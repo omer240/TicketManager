@@ -65,22 +65,20 @@
             }
           </select>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label for="assignedTo">Assign To (User ID) *</label>
-          <input 
-            id="assignedTo"
-            type="text" 
-            formControlName="assignedToUserId"
-            placeholder="Enter user ID"
-            [class.invalid]="assignedToUserId?.invalid && assignedToUserId?.touched"
-          />
-          @if (assignedToUserId?.invalid && assignedToUserId?.touched) {
-            <div class="error-text">
-              <span>Assigned user is required</span>
-            </div>
-          }
-        </div>
+      <div class="form-group">
+        <app-user-select
+          formControlName="assignedToUserId"
+          label="Assign To"
+          placeholder="Search and select user..."
+          [required]="true">
+        </app-user-select>
+        @if (assignedToUserId?.invalid && assignedToUserId?.touched) {
+          <div class="error-text">
+            <span>Please select a user to assign this ticket</span>
+          </div>
+        }
       </div>
 
       <div class="form-actions">

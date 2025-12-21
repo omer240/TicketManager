@@ -18,11 +18,12 @@ import {
 import { CommentDto, CommentCreateRequest, CommentUpdateRequest } from '../../models/comment.models';
 import { CommentListComponent } from '../../components/comment-list/comment-list.component';
 import { CommentFormComponent } from '../../components/comment-form/comment-form.component';
+import { ConfirmModalComponent } from '../../../../shared/components/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-ticket-detail',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CommentListComponent, CommentFormComponent],
+  imports: [CommonModule, ReactiveFormsModule, CommentListComponent, CommentFormComponent, ConfirmModalComponent],
   templateUrl: './ticket-detail.component.html',
   styleUrl: './ticket-detail.component.scss'
 })
@@ -39,6 +40,7 @@ export class TicketDetailComponent implements OnInit {
   errorMessage = '';
   isEditMode = false;
   isSaving = false;
+  showDeleteModal = false;
 
   // Comments
   comments: CommentDto[] = [];
@@ -120,9 +122,7 @@ export class TicketDetailComponent implements OnInit {
     this.editForm = this.fb.group({
       title: [this.ticket.title, [Validators.required, Validators.maxLength(200)]],
       description: [this.ticket.description, [Validators.required, Validators.maxLength(2000)]],
-      status: [this.ticket.status, Validators.required],
-      priority: [this.ticket.priority, Validators.required],
-      assignedToUserId: [this.ticket.assignedToUserId || '', Validators.required]
+      priority: [this.ticket.priority, Validators.required]
     });
   }
 
@@ -146,9 +146,7 @@ export class TicketDetailComponent implements OnInit {
     const request: TicketUpdateRequest = {
       title: this.editForm.value.title,
       description: this.editForm.value.description,
-      status: this.editForm.value.status,
-      priority: this.editForm.value.priority,
-      assignedToUserId: this.editForm.value.assignedToUserId
+      priority: this.editForm.value.priority
     };
 
     this.ticketService.update(this.ticket.id, request).subscribe({
@@ -192,6 +190,38 @@ export class TicketDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/tickets']);
+  }
+
+  showDeleteConfirmation(): void {
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteModal = false;
+  }
+
+  confirmDelete(): void {
+    if (!this.ticket) return;
+
+    this.showDeleteModal = false;
+    this.isSaving = true;
+    this.errorMessage = '';
+
+    this.ticketService.delete(this.ticket.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.router.navigate(['/tickets']);
+        } else {
+          this.errorMessage = response.error?.message || 'Failed to delete ticket';
+          this.isSaving = false;
+        }
+      },
+      error: (error) => {
+        console.error('Delete ticket error:', error);
+        this.errorMessage = error.error?.error?.message || 'Failed to delete ticket';
+        this.isSaving = false;
+      }
+    });
   }
 
   // Comment methods
@@ -299,7 +329,19 @@ export class TicketDetailComponent implements OnInit {
     });
   }
 
+  // Permission checks
+  get canEdit(): boolean {
+    const userId = this.currentUserId;
+    return !!this.ticket && !!userId && this.ticket.createdByUserId === userId;
+  }
+
+  get canDelete(): boolean {
+    const userId = this.currentUserId;
+    return !!this.ticket && !!userId && this.ticket.createdByUserId === userId;
+  }
+
   get canEditStatus(): boolean {
-    return !this.isEditMode;
+    const userId = this.currentUserId;
+    return !!this.ticket && !!userId && this.ticket.assignedToUserId === userId && !this.isEditMode;
   }
 }

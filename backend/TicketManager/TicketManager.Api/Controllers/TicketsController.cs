@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -25,8 +26,7 @@ namespace TicketManager.Api.Controllers
 
         // GET api/tickets/MyCreated?page=1&pageSize=20&search=...&status=...&priority=...
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<PagedResult<TicketDto>>>> MyCreated(
-            [FromQuery] TicketQuery query,
+        public async Task<ActionResult<ApiResponse<PagedResult<TicketDto>>>> MyCreated([FromQuery] TicketQuery query,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -36,8 +36,7 @@ namespace TicketManager.Api.Controllers
 
         // GET api/tickets/MyAssigned?page=1&pageSize=20&search=...&status=...&priority=...
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<PagedResult<TicketDto>>>> MyAssigned(
-            [FromQuery] TicketQuery query,
+        public async Task<ActionResult<ApiResponse<PagedResult<TicketDto>>>> MyAssigned([FromQuery] TicketQuery query,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -47,8 +46,7 @@ namespace TicketManager.Api.Controllers
 
         // GET api/tickets/Detail?ticketId=5
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<TicketDto>>> Detail(
-            [FromQuery] int ticketId,
+        public async Task<ActionResult<ApiResponse<TicketDto>>> Detail([FromQuery] int ticketId,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -58,9 +56,7 @@ namespace TicketManager.Api.Controllers
 
         // PUT api/tickets/Update?ticketId=5
         [HttpPut]
-        public async Task<ActionResult<ApiResponse<TicketDto>>> Update(
-            [FromQuery] int ticketId,
-            [FromBody] TicketUpdateRequest request,
+        public async Task<ActionResult<ApiResponse<TicketDto>>> Update([FromQuery] int ticketId,[FromBody] TicketUpdateRequest request,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -71,20 +67,29 @@ namespace TicketManager.Api.Controllers
 
         // POST api/tickets/Create
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<TicketDto>>> Create(
-            [FromBody] TicketCreateRequest request,
+        public async Task<ActionResult<ApiResponse<TicketDto>>> Create([FromBody] TicketCreateRequest request,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
             var dto = await _ticketService.CreateAsync(userId, request, ct);
 
-            // action route style'da CreatedAtAction da çalışır
             return CreatedAtAction(nameof(Detail), new { ticketId = dto.Id }, ApiResponse<TicketDto>.Ok(dto));
         }
 
+
+        // POST api/tickets/Delete?ticketId=5
+        [HttpDelete]
+        public async Task<ActionResult<ApiResponse<object>>> Delete([FromQuery] int ticketId, 
+            CancellationToken ct)
+        {
+            var userId = GetUserIdOrThrow();
+            await _ticketService.DeleteAsync(userId, ticketId, ct);
+            return Ok(ApiResponse<object>.Ok(new { deleted = true }));
+        }
+
+        // PATCH api/tickets/UpdateStatus
         [HttpPatch]
-        public async Task<ActionResult<ApiResponse<TicketDto>>> UpdateStatus(
-            [FromBody] TicketStatusUpdateRequest request,
+        public async Task<ActionResult<ApiResponse<TicketDto>>> UpdateStatus([FromBody] TicketStatusUpdateRequest request,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -92,7 +97,7 @@ namespace TicketManager.Api.Controllers
             return Ok(ApiResponse<TicketDto>.Ok(dto));
         }
 
-        // PATCH api/tickets/UpdateStatus
+        //JWT içindeki NameIdentifier claimden giriş yapan kullanıcı bilgilerini okumak için kullanılan yardımcı metot
         private string GetUserIdOrThrow()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

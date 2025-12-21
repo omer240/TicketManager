@@ -5,11 +5,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { TicketService } from '../../services/ticket.service';
 import { TicketCreateRequest, TicketPriority } from '../../models/ticket.models';
 import { AuthService } from '../../../../core/services/auth.service';
+import { UserSelectComponent } from '../../../../shared/components/user-select/user-select.component';
 
 @Component({
   selector: 'app-ticket-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, UserSelectComponent],
   templateUrl: './ticket-create.component.html',
   styleUrl: './ticket-create.component.scss'
 })
@@ -36,14 +37,6 @@ export class TicketCreateComponent implements OnInit {
       priority: [TicketPriority.Medium, Validators.required],
       assignedToUserId: ['', Validators.required]
     });
-
-    // Pre-fill assignedToUserId with current user
-    const currentUser = this.authService.getCurrentUser();
-    if (currentUser) {
-      this.createForm.patchValue({
-        assignedToUserId: currentUser.userId
-      });
-    }
   }
 
   onSubmit(): void {

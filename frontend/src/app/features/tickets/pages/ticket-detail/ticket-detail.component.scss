@@ -103,6 +103,17 @@
     }
   }
 
+  &.btn-danger {
+    background: #ef4444;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #dc2626;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+  }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
