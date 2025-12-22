@@ -42,7 +42,6 @@ export class UserSelectComponent implements OnInit, ControlValueAccessor {
   ngOnInit(): void {
     this.loadUsers();
     
-    // Setup search with debounce
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -115,15 +114,12 @@ export class UserSelectComponent implements OnInit, ControlValueAccessor {
     this.searchText = '';
   }
 
-  // ControlValueAccessor implementation
   writeValue(userId: string): void {
     if (userId) {
-      // Find user in current list or load it
       const user = this.users.find(u => u.id === userId);
       if (user) {
         this.selectedUser = user;
       } else {
-        // Load all users to find the selected one
         this.userService.getAssignees().subscribe({
           next: (response: ApiResponse<UserDto[]>) => {
             if (response.success && response.data) {

@@ -8,10 +8,9 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   
-  // Get token from auth service
   const token = authService.getAccessToken();
 
-  // Clone request and add Authorization header if token exists
+  // Token varsa ve geçerliyse Authorization header'ı ekle
   if (token && !authService.isTokenExpired()) {
     req = req.clone({
       setHeaders: {
@@ -20,10 +19,9 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
-  // Handle response
   return next(req).pipe(
     catchError(error => {
-      // If 401 Unauthorized, logout and redirect to login
+      // 401 hatası alınırsa logout yap ve login'e yönlendir
       if (error.status === 401) {
         authService.logout();
         router.navigate(['/auth/login']);

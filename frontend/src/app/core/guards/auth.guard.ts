@@ -6,12 +6,12 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Check if user is authenticated and token is not expired
+  // Kullanıcı giriş yapmış ve token geçerli mi kontrol et
   if (authService.getCurrentUser() && !authService.isTokenExpired()) {
     return true;
   }
 
-  // Not authenticated, redirect to login with return URL
+  // Giriş yapılmamış, login sayfasına yönlendir ve dönüş URL'ini sakla
   router.navigate(['/auth/login'], {
     queryParams: { returnUrl: state.url }
   });

@@ -19,6 +19,12 @@ export interface AuthResponse {
   fullName: string;
 }
 
+export interface RegisterResponse {
+  userId: string;
+  email: string;
+  fullName: string;
+}
+
 // API wrapper
 export interface ApiResponse<T> {
   success: boolean;

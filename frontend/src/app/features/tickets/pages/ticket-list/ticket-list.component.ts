@@ -26,7 +26,6 @@ type ViewMode = 'myCreated' | 'myAssigned';
   styleUrl: './ticket-list.component.scss'
 })
 export class TicketListComponent implements OnInit {
-  // Expose Math to template
   protected readonly Math = Math;
   private ticketService = inject(TicketService);
   private authService = inject(AuthService);
@@ -36,23 +35,19 @@ export class TicketListComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   
-  // Pagination
   currentPage = 1;
   pageSize = 20;
   totalCount = 0;
   totalPages = 0;
 
-  // View mode
   viewMode: ViewMode = 'myCreated';
 
-  // Filters
   filterForm = new FormGroup({
     search: new FormControl(''),
     status: new FormControl<TicketStatus | ''>(''),
     priority: new FormControl<TicketPriority | ''>('')
   });
 
-  // Enums for template
   TicketStatus = TicketStatus;
   TicketPriority = TicketPriority;
   statusOptions = [
@@ -109,7 +104,6 @@ export class TicketListComponent implements OnInit {
   }
 
   setupFilterWatchers(): void {
-    // Watch for filter changes and reload
     this.filterForm.valueChanges
       .pipe(
         debounceTime(300),
@@ -150,7 +144,6 @@ export class TicketListComponent implements OnInit {
     this.router.navigate(['/tickets/create']);
   }
 
-  // Helper methods for template
   getStatusLabel = getStatusLabel;
   getPriorityLabel = getPriorityLabel;
   getStatusColor = getStatusColor;

@@ -6,12 +6,11 @@ export const noAuthGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // If user is already authenticated, redirect to tickets
+  // Kullanıcı zaten giriş yapmışsa tickets sayfasına yönlendir
   if (authService.getCurrentUser() && !authService.isTokenExpired()) {
     router.navigate(['/tickets']);
     return false;
   }
 
-  // Not authenticated, allow access to login/register
   return true;
 };

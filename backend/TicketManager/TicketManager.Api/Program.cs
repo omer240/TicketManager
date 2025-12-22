@@ -1,16 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using TicketManager.Api.Data.Contexts;
-using TicketManager.Api.Domain.Entities;
 using TicketManager.Api.Extensions;
-using TicketManager.Api.Repositories.Implementations;
-using TicketManager.Api.Repositories.Interfaces;
-using TicketManager.Api.Services.Implementations.Auth;
-using TicketManager.Api.Services.Interfaces.Auth;
-using TicketManager.Api.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+builder.Services.AddApiBehavior();
 builder.Services.AddCorsPolicy(builder.Configuration);
 builder.Services.AddRateLimiting(builder.Configuration);
 builder.Services.AddApplicationServices(builder.Configuration);

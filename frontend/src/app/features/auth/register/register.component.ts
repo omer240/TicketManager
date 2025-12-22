@@ -48,11 +48,11 @@ export class RegisterComponent {
 
     this.authService.register(userData).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.toastService.success('Hesabınız oluşturuldu! Hoş geldiniz...');
+        if (response.success && response.data) {
+          this.toastService.success(`Kayıt başarılı! Hoş geldiniz ${response.data.fullName}. Şimdi giriş yapabilirsiniz.`);
           setTimeout(() => {
-            this.router.navigate(['/tickets']);
-          }, 500);
+            this.router.navigate(['/auth/login']);
+          }, 1500);
         } else {
           this.errorMessage = response.error?.message || 'Kayıt başarısız';
           this.isLoading = false;

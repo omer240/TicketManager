@@ -26,13 +26,11 @@ export class LoginComponent {
   returnUrl: string = '/tickets';
 
   constructor() {
-    // Initialize form
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
-    // Get return URL from query params
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/tickets';
   }
 
@@ -70,7 +68,6 @@ export class LoginComponent {
     });
   }
 
-  // Getters for form controls
   get email() {
     return this.loginForm.get('email');
   }

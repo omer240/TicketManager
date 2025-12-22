@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TicketManager.Api.ApiModels.Common.Exceptions;
@@ -11,7 +10,7 @@ namespace TicketManager.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api/users")]
     public sealed class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -21,18 +20,15 @@ namespace TicketManager.Api.Controllers
             _userService = userService;
         }
 
-        // GET api/users/Assignees?search=mehmet
-        [HttpGet]
-        public async Task<ActionResult<ApiResponse<IReadOnlyList<UserDto>>>> Assignees(
-            [FromQuery] string? search,
-            CancellationToken ct)
+        // GET api/users/assignees?search=mehmet
+        [HttpGet("assignees")]
+        public async Task<ActionResult<ApiResponse<IReadOnlyList<UserDto>>>> Assignees([FromQuery] string? search,CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
             var users = await _userService.GetAssigneesAsync(userId, search, ct);
             return Ok(ApiResponse<IReadOnlyList<UserDto>>.Ok(users));
         }
 
-        //JWT içindeki NameIdentifier claimden giriş yapan kullanıcı bilgilerini okumak için kullanılan yardımcı metot
         private string GetUserIdOrThrow()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

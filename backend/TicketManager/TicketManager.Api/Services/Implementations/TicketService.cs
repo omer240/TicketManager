@@ -62,6 +62,9 @@ namespace TicketManager.Api.Services.Implementations
             if (string.IsNullOrWhiteSpace(request.AssignedToUserId))
                 throw ApiException.BadRequest("Ticket mutlaka bir kullanıcıya atanmalıdır.");
 
+            if (request.AssignedToUserId == userId)
+                throw ApiException.BadRequest("Ticket oluşturan kişi ticket'ı kendisine atayamaz.");
+
             var creator = await _userManager.FindByIdAsync(userId);
             if (creator is null)
                 throw ApiException.BadRequest("Kullanıcı bulunamadı.");
@@ -78,10 +81,8 @@ namespace TicketManager.Api.Services.Implementations
                 Description = request.Description.Trim(),
                 Priority = request.Priority,
                 Status = TicketStatus.Open,
-
                 CreatedByUserId = userId,
                 AssignedToUserId = request.AssignedToUserId,
-
                 CreatedAt = now,
                 UpdatedAt = now
             };
@@ -95,7 +96,8 @@ namespace TicketManager.Api.Services.Implementations
 
         public async Task<TicketDto> UpdateAsync(string userId, int ticketId, TicketUpdateRequest request, CancellationToken ct = default)
         {
-            var ticket = await _ticketRepo.FirstOrDefaultAsync(t => t.Id == ticketId, false,ct);
+            var ticket = await _ticketRepo.GetByIdWithUsersAsync(ticketId, ct);
+
             if (ticket is null)
                 throw ApiException.NotFound("Ticket bulunamadı.");
 
@@ -115,12 +117,14 @@ namespace TicketManager.Api.Services.Implementations
             _ticketRepo.Update(ticket);
             await _uow.SaveChangesAsync(ct);
 
+
             return ToDto(ticket);
         }
 
         public async Task<TicketDto> UpdateStatusAsync(string userId, int ticketId, TicketStatus status, CancellationToken ct = default)
         {
-            var ticket = await _ticketRepo.FirstOrDefaultAsync(t => t.Id == ticketId, false, ct);
+            var ticket = await _ticketRepo.GetByIdWithUsersAsync(ticketId, ct);
+
             if (ticket is null)
                 throw ApiException.NotFound("Ticket bulunamadı.");
 
@@ -176,7 +180,9 @@ namespace TicketManager.Api.Services.Implementations
             Status = t.Status,
             Priority = t.Priority,
             CreatedByUserId = t.CreatedByUserId,
+            CreatedByUserFullName = t.CreatedByUser?.FullName,
             AssignedToUserId = t.AssignedToUserId,
+            AssignedToUserFullName = t.AssignedToUser?.FullName,
             CreatedAt = t.CreatedAt,
             UpdatedAt = t.UpdatedAt,
             CommentCount = t.Comments?.Count ?? 0

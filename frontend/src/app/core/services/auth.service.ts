@@ -7,6 +7,7 @@ import {
   LoginRequest,
   RegisterRequest,
   AuthResponse,
+  RegisterResponse,
   ApiResponse,
   StoredAuthData
 } from '../models/auth.models';
@@ -18,27 +19,21 @@ export class AuthService {
   private readonly API_URL = environment.apiBaseUrl;
   private readonly TOKEN_KEY = 'ticket_manager_auth';
 
-  // Signal-based reactive state
   private currentUserSubject = new BehaviorSubject<StoredAuthData | null>(this.getStoredAuth());
   public currentUser$ = this.currentUserSubject.asObservable();
   
-  // Computed signals
   public isAuthenticated = computed(() => this.currentUserSubject.value !== null);
 
   constructor(
     private http: HttpClient,
     private router: Router
   ) {
-    // Check token expiry on init
     this.checkTokenExpiry();
   }
 
-  /**
-   * Login user
-   */
   login(credentials: LoginRequest): Observable<ApiResponse<AuthResponse>> {
     return this.http
-      .post<ApiResponse<AuthResponse>>(`${this.API_URL}/api/Auth/Login`, credentials)
+      .post<ApiResponse<AuthResponse>>(`${this.API_URL}/api/auth/login`, credentials)
       .pipe(
         tap(response => {
           if (response.success && response.data) {
@@ -50,50 +45,30 @@ export class AuthService {
       );
   }
 
-  /**
-   * Register new user
-   */
-  register(userData: RegisterRequest): Observable<ApiResponse<AuthResponse>> {
+  register(userData: RegisterRequest): Observable<ApiResponse<RegisterResponse>> {
     return this.http
-      .post<ApiResponse<AuthResponse>>(`${this.API_URL}/api/Auth/Register`, userData)
+      .post<ApiResponse<RegisterResponse>>(`${this.API_URL}/api/auth/register`, userData)
       .pipe(
-        tap(response => {
-          if (response.success && response.data) {
-            this.storeAuth(response.data);
-            this.currentUserSubject.next(response.data);
-          }
-        }),
         catchError(this.handleError)
       );
   }
 
-  /**
-   * Logout user
-   */
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
 
-  /**
-   * Get stored access token
-   */
   getAccessToken(): string | null {
     const auth = this.getStoredAuth();
     return auth?.accessToken || null;
   }
 
-  /**
-   * Get current user info
-   */
   getCurrentUser(): StoredAuthData | null {
     return this.currentUserSubject.value;
   }
 
-  /**
-   * Check if token is expired
-   */
+  // Token süresi dolmuş mu kontrol et
   isTokenExpired(): boolean {
     const auth = this.getStoredAuth();
     if (!auth) return true;
@@ -117,13 +92,10 @@ export class AuthService {
     localStorage.setItem(this.TOKEN_KEY, JSON.stringify(stored));
   }
 
-  /**
-   * Retrieve auth data from localStorage
-   */
   private getStoredAuth(): StoredAuthData | null {
     const stored = localStorage.getItem(this.TOKEN_KEY);
     if (!stored) return null;
-
+    
     try {
       return JSON.parse(stored) as StoredAuthData;
     } catch {
@@ -131,20 +103,15 @@ export class AuthService {
     }
   }
 
-  /**
-   * Check token expiry and logout if expired
-   */
   private checkTokenExpiry(): void {
     if (this.isTokenExpired()) {
       this.logout();
     }
   }
 
-  /**
-   * Handle HTTP errors
-   */
   private handleError(error: any): Observable<never> {
     console.error('Auth error:', error);
     return throwError(() => error);
   }
 }
+  

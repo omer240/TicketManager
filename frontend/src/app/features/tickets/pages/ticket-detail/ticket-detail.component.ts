@@ -15,7 +15,7 @@ import {
   getStatusColor,
   getPriorityColor
 } from '../../models/ticket.models';
-import { CommentDto, CommentCreateRequest, CommentUpdateRequest } from '../../models/comment.models';
+import { CommentDto, CommentUpdateRequest } from '../../models/comment.models';
 import { CommentListComponent } from '../../components/comment-list/comment-list.component';
 import { CommentFormComponent } from '../../components/comment-form/comment-form.component';
 import { ConfirmModalComponent } from '../../../../shared/components/confirm-modal/confirm-modal.component';
@@ -42,7 +42,6 @@ export class TicketDetailComponent implements OnInit {
   isSaving = false;
   showDeleteModal = false;
 
-  // Comments
   comments: CommentDto[] = [];
   isLoadingComments = false;
   isSubmittingComment = false;
@@ -51,7 +50,6 @@ export class TicketDetailComponent implements OnInit {
 
   editForm!: FormGroup;
 
-  // Enums for template
   TicketStatus = TicketStatus;
   TicketPriority = TicketPriority;
   statusOptions = [
@@ -129,7 +127,6 @@ export class TicketDetailComponent implements OnInit {
   toggleEditMode(): void {
     this.isEditMode = !this.isEditMode;
     if (!this.isEditMode && this.ticket) {
-      // Reset form when canceling edit
       this.initializeForm();
     }
   }
@@ -171,10 +168,7 @@ export class TicketDetailComponent implements OnInit {
   updateStatus(newStatus: TicketStatus): void {
     if (!this.ticket) return;
 
-    this.ticketService.updateStatus({
-      ticketId: this.ticket.id,
-      status: newStatus
-    }).subscribe({
+    this.ticketService.updateStatus(this.ticket.id, newStatus).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.ticket = response.data;
@@ -232,7 +226,6 @@ export class TicketDetailComponent implements OnInit {
     this.commentError = '';
 
     if (this.editingComment) {
-      // Update existing comment
       const request: CommentUpdateRequest = { text };
       this.commentService.update(this.editingComment.id, request).subscribe({
         next: (response) => {
@@ -254,16 +247,10 @@ export class TicketDetailComponent implements OnInit {
         }
       });
     } else {
-      // Create new comment
-      const request: CommentCreateRequest = {
-        ticketId: this.ticket.id,
-        text
-      };
-      this.commentService.add(request).subscribe({
+      this.commentService.add(this.ticket.id, text).subscribe({
         next: (response) => {
           if (response.success && response.data) {
             this.comments.push(response.data);
-            // Update ticket comment count
             if (this.ticket) {
               this.ticket.commentCount = this.comments.length;
             }
@@ -296,7 +283,6 @@ export class TicketDetailComponent implements OnInit {
           this.comments = this.comments.filter(c => c.id !== commentId);
           // Update ticket comment count
           if (this.ticket) {
-            this.ticket.commentCount = this.comments.length;
           }
         } else {
           this.commentError = 'Yorum silinemedi';
@@ -313,7 +299,6 @@ export class TicketDetailComponent implements OnInit {
     return this.authService.getCurrentUser()?.userId || null;
   }
 
-  // Helper methods
   getStatusLabel = getStatusLabel;
   getPriorityLabel = getPriorityLabel;
   getStatusColor = getStatusColor;
@@ -329,7 +314,6 @@ export class TicketDetailComponent implements OnInit {
     });
   }
 
-  // Permission checks
   get canEdit(): boolean {
     const userId = this.currentUserId;
     return !!this.ticket && !!userId && this.ticket.createdByUserId === userId;

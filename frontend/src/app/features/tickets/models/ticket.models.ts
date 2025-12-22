@@ -1,4 +1,3 @@
-// Enums matching backend
 export enum TicketStatus {
   Open = 1,
   InProgress = 2,
@@ -11,7 +10,6 @@ export enum TicketPriority {
   High = 3
 }
 
-// DTOs matching backend
 export interface TicketDto {
   id: number;
   title: string;
@@ -51,11 +49,9 @@ export interface TicketUpdateRequest {
 }
 
 export interface TicketStatusUpdateRequest {
-  ticketId: number;
   status: TicketStatus;
 }
 
-// Paged result
 export interface PagedResult<T> {
   items: T[];
   totalCount: number;
@@ -63,7 +59,6 @@ export interface PagedResult<T> {
   pageSize: number;
 }
 
-// Helper functions for display
 export function getStatusLabel(status: TicketStatus): string {
   switch (status) {
     case TicketStatus.Open: return 'Açık';
@@ -84,18 +79,18 @@ export function getPriorityLabel(priority: TicketPriority): string {
 
 export function getStatusColor(status: TicketStatus): string {
   switch (status) {
-    case TicketStatus.Open: return '#3b82f6'; // blue
-    case TicketStatus.InProgress: return '#f59e0b'; // amber
-    case TicketStatus.Done: return '#10b981'; // green
-    default: return '#6b7280'; // gray
+    case TicketStatus.Open: return '#3b82f6';
+    case TicketStatus.InProgress: return '#f59e0b';
+    case TicketStatus.Done: return '#10b981';
+    default: return '#6b7280';
   }
 }
 
 export function getPriorityColor(priority: TicketPriority): string {
   switch (priority) {
-    case TicketPriority.Low: return '#10b981'; // green
-    case TicketPriority.Medium: return '#f59e0b'; // amber
-    case TicketPriority.High: return '#ef4444'; // red
-    default: return '#6b7280'; // gray
+    case TicketPriority.Low: return '#10b981';
+    case TicketPriority.Medium: return '#f59e0b';
+    case TicketPriority.High: return '#ef4444';
+    default: return '#6b7280';
   }
 }

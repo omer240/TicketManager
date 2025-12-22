@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TicketManager.Api.ApiModels.Common.Exceptions;
@@ -13,8 +11,7 @@ namespace TicketManager.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]/[action]")]
-
+    [Route("api/tickets")]
     public class TicketsController : ControllerBase
     {
         private readonly ITicketService _ticketService;
@@ -24,8 +21,8 @@ namespace TicketManager.Api.Controllers
             _ticketService = ticketService;
         }
 
-        // GET api/tickets/MyCreated?page=1&pageSize=20&search=...&status=...&priority=...
-        [HttpGet]
+        // GET api/tickets/created?page=1&pageSize=20&search=...&status=...&priority=...
+        [HttpGet("created")]
         public async Task<ActionResult<ApiResponse<PagedResult<TicketDto>>>> MyCreated([FromQuery] TicketQuery query,
             CancellationToken ct)
         {
@@ -34,8 +31,8 @@ namespace TicketManager.Api.Controllers
             return Ok(ApiResponse<PagedResult<TicketDto>>.Ok(result));
         }
 
-        // GET api/tickets/MyAssigned?page=1&pageSize=20&search=...&status=...&priority=...
-        [HttpGet]
+        // GET api/tickets/assigned?page=1&pageSize=20&search=...&status=...&priority=...
+        [HttpGet("assigned")]
         public async Task<ActionResult<ApiResponse<PagedResult<TicketDto>>>> MyAssigned([FromQuery] TicketQuery query,
             CancellationToken ct)
         {
@@ -44,31 +41,18 @@ namespace TicketManager.Api.Controllers
             return Ok(ApiResponse<PagedResult<TicketDto>>.Ok(result));
         }
 
-        // GET api/tickets/Detail?ticketId=5
-        [HttpGet]
-        public async Task<ActionResult<ApiResponse<TicketDto>>> Detail([FromQuery] int ticketId,
-            CancellationToken ct)
+        // GET api/tickets/{ticketId}
+        [HttpGet("{ticketId:int}")]
+        public async Task<ActionResult<ApiResponse<TicketDto>>> Detail(int ticketId,CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
             var dto = await _ticketService.GetDetailAsync(userId, ticketId, ct);
             return Ok(ApiResponse<TicketDto>.Ok(dto));
         }
 
-        // PUT api/tickets/Update?ticketId=5
-        [HttpPut]
-        public async Task<ActionResult<ApiResponse<TicketDto>>> Update([FromQuery] int ticketId,[FromBody] TicketUpdateRequest request,
-            CancellationToken ct)
-        {
-            var userId = GetUserIdOrThrow();
-            var dto = await _ticketService.UpdateAsync(userId, ticketId, request, ct);
-            return Ok(ApiResponse<TicketDto>.Ok(dto));
-        }
-
-
-        // POST api/tickets/Create
+        // POST api/tickets
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<TicketDto>>> Create([FromBody] TicketCreateRequest request,
-            CancellationToken ct)
+        public async Task<ActionResult<ApiResponse<TicketDto>>> Create([FromBody] TicketCreateRequest request,CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
             var dto = await _ticketService.CreateAsync(userId, request, ct);
@@ -76,28 +60,35 @@ namespace TicketManager.Api.Controllers
             return CreatedAtAction(nameof(Detail), new { ticketId = dto.Id }, ApiResponse<TicketDto>.Ok(dto));
         }
 
-
-        // POST api/tickets/Delete?ticketId=5
-        [HttpDelete]
-        public async Task<ActionResult<ApiResponse<object>>> Delete([FromQuery] int ticketId, 
+        // PUT api/tickets/{ticketId}
+        [HttpPut("{ticketId:int}")]
+        public async Task<ActionResult<ApiResponse<TicketDto>>> Update(int ticketId,[FromBody] TicketUpdateRequest request,
             CancellationToken ct)
+        {
+            var userId = GetUserIdOrThrow();
+            var dto = await _ticketService.UpdateAsync(userId, ticketId, request, ct);
+            return Ok(ApiResponse<TicketDto>.Ok(dto));
+        }
+
+        // DELETE api/tickets/{ticketId}
+        [HttpDelete("{ticketId:int}")]
+        public async Task<ActionResult<ApiResponse<object>>> Delete(int ticketId,CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
             await _ticketService.DeleteAsync(userId, ticketId, ct);
             return Ok(ApiResponse<object>.Ok(new { deleted = true }));
         }
 
-        // PATCH api/tickets/UpdateStatus
-        [HttpPatch]
-        public async Task<ActionResult<ApiResponse<TicketDto>>> UpdateStatus([FromBody] TicketStatusUpdateRequest request,
+        // PATCH api/tickets/{ticketId}/status
+        [HttpPatch("{ticketId:int}/status")]
+        public async Task<ActionResult<ApiResponse<TicketDto>>> UpdateStatus(int ticketId,[FromBody] TicketStatusUpdateRequest request,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
-            var dto = await _ticketService.UpdateStatusAsync(userId, request.TicketId, request.Status, ct);
+            var dto = await _ticketService.UpdateStatusAsync(userId, ticketId, request.Status, ct);
             return Ok(ApiResponse<TicketDto>.Ok(dto));
         }
 
-        //JWT içindeki NameIdentifier claimden giriş yapan kullanıcı bilgilerini okumak için kullanılan yardımcı metot
         private string GetUserIdOrThrow()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -106,6 +97,4 @@ namespace TicketManager.Api.Controllers
             return userId;
         }
     }
-
-
 }

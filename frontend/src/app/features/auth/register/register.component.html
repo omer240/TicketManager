@@ -1,103 +1,114 @@
 <div class="register-container">
   <div class="register-card">
-    <div class="register-header">
-      <h1>Hesap Oluştur</h1>
-      <p>Başlamak için kayıt olun</p>
+    <!-- Left Side - Visual -->
+    <div class="register-visual">
+      <div class="visual-content">
+        <div class="brand-icon">🎫</div>
+        <h2>Ticket Manager'a<br>Katılın</h2>
+        <p>Ücretsiz hesap oluşturun ve taleplerinizi yönetmeye başlayın</p>
+      </div>
     </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
-      @if (errorMessage) {
-        <div class="alert alert-error">
-          {{ errorMessage }}
+    <!-- Right Side - Form -->
+    <div class="register-form-section">
+      <div class="register-header">
+        <h1>Hesap Oluştur</h1>
+        <p>Başlamak için bilgilerinizi girin</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        @if (errorMessage) {
+          <div class="alert alert-error">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <!-- Full Name Field -->
+        <div class="form-group">
+          <label for="fullName">Ad Soyad</label>
+          <input
+            id="fullName"
+            type="text"
+            formControlName="fullName"
+            placeholder="Ahmet Yılmaz"
+            [class.invalid]="fullName?.invalid && fullName?.touched"
+          />
+          @if (fullName?.invalid && fullName?.touched) {
+            <div class="error-text">
+              @if (fullName?.errors?.['required']) {
+                <span>Ad soyad zorunludur</span>
+              }
+              @if (fullName?.errors?.['minlength']) {
+                <span>Ad soyad en az 3 karakter olmalıdır</span>
+              }
+              @if (fullName?.errors?.['maxlength']) {
+                <span>Ad soyad 150 karakteri geçemez</span>
+              }
+            </div>
+          }
         </div>
-      }
 
-      <!-- Full Name Field -->
-      <div class="form-group">
-        <label for="fullName">Ad Soyad</label>
-        <input
-          id="fullName"
-          type="text"
-          formControlName="fullName"
-          placeholder="Adınızı ve soyadınızı girin"
-          [class.invalid]="fullName?.invalid && fullName?.touched"
-        />
-        @if (fullName?.invalid && fullName?.touched) {
-          <div class="error-text">
-            @if (fullName?.errors?.['required']) {
-              <span>Ad soyad zorunludur</span>
-            }
-            @if (fullName?.errors?.['minlength']) {
-              <span>Ad soyad en az 3 karakter olmalıdır</span>
-            }
-            @if (fullName?.errors?.['maxlength']) {
-              <span>Ad soyad 150 karakteri geçemez</span>
-            }
-          </div>
-        }
-      </div>
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email">E-posta Adresi</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="ornek@email.com"
+            [class.invalid]="email?.invalid && email?.touched"
+          />
+          @if (email?.invalid && email?.touched) {
+            <div class="error-text">
+              @if (email?.errors?.['required']) {
+                <span>E-posta zorunludur</span>
+              }
+              @if (email?.errors?.['email']) {
+                <span>Geçerli bir e-posta adresi girin</span>
+              }
+            </div>
+          }
+        </div>
 
-      <!-- Email Field -->
-      <div class="form-group">
-        <label for="email">E-posta</label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          placeholder="E-posta adresinizi girin"
-          [class.invalid]="email?.invalid && email?.touched"
-        />
-        @if (email?.invalid && email?.touched) {
-          <div class="error-text">
-            @if (email?.errors?.['required']) {
-              <span>E-posta zorunludur</span>
-            }
-            @if (email?.errors?.['email']) {
-              <span>Lütfen geçerli bir e-posta girin</span>
-            }
-          </div>
-        }
-      </div>
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password">Şifre</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+            [class.invalid]="password?.invalid && password?.touched"
+          />
+          @if (password?.invalid && password?.touched) {
+            <div class="error-text">
+              @if (password?.errors?.['required']) {
+                <span>Şifre zorunludur</span>
+              }
+              @if (password?.errors?.['minlength']) {
+                <span>Şifre en az 6 karakter olmalıdır</span>
+              }
+            </div>
+          }
+        </div>
 
-      <!-- Password Field -->
-      <div class="form-group">
-        <label for="password">Şifre</label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          placeholder="Şifrenizi girin"
-          [class.invalid]="password?.invalid && password?.touched"
-        />
-        @if (password?.invalid && password?.touched) {
-          <div class="error-text">
-            @if (password?.errors?.['required']) {
-              <span>Şifre zorunludur</span>
-            }
-            @if (password?.errors?.['minlength']) {
-              <span>Şifre en az 6 karakter olmalıdır</span>
-            }
-          </div>
-        }
-      </div>
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading"
+        >
+          @if (isLoading) {
+            <span>Hesap oluşturuluyor...</span>
+          } @else {
+            <span>Kayıt Ol</span>
+          }
+        </button>
 
-      <!-- Submit Button -->
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="isLoading"
-      >
-        @if (isLoading) {
-          <span>Hesap oluşturuluyor...</span>
-        } @else {
-          <span>Kayıt Ol</span>
-        }
-      </button>
-
-      <!-- Login Link -->
-      <div class="login-link">
-        <p>Zaten hesabınız var mı? <a routerLink="/auth/login">Giriş yapın</a></p>
-      </div>
+        <!-- Login Link -->
+        <div class="login-link">
+          <p>Zaten hesabınız var mı? <a routerLink="/auth/login">Giriş yapın</a></p>
+        </div>
     </form>
   </div>
 </div>

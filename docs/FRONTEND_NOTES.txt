@@ -1,0 +1,263 @@
+﻿FRONTEND NOTLARI – Ticket Manager Uygulaması
+
+1. Projenin Amacı
+
+Bu frontend uygulaması, Ticket Manager sisteminin kullanıcı arayüzünü sağlamak amacıyla Angular 20 kullanılarak geliştirilmiştir.
+Uygulama; kullanıcıların sisteme giriş yapabilmesini, ticket oluşturmasını, kendisine atanan veya kendi oluşturduğu ticket'ları listeleyip yönetebilmesini sağlar.
+Frontend geliştirilirken backend tarafındaki .NET Core Web API yapısı incelenmiş ve birebir uyumlu olacak şekilde geliştirme yapılmıştır.
+
+2. Kullanılan Teknolojiler
+
+- Angular 20
+- TypeScript
+- Standalone Component mimarisi
+- Reactive Forms
+- RxJS
+- SCSS
+- JWT tabanlı kimlik doğrulama
+
+3. Genel Mimari Yaklaşım
+
+Frontend tarafında component ve service ayrımı net şekilde uygulanmıştır.
+- Component'ler yalnızca kullanıcı arayüzü ve kullanıcı etkileşimlerinden sorumludur.
+- API çağrıları ve iş mantığı servis katmanında toplanmıştır.
+Bu yaklaşım sayesinde kodun okunabilirliği, sürdürülebilirliği ve genişletilebilirliği artırılmıştır.
+
+4. Frontend Klasör Yapısı
+
+Uygulama, feature-based (özellik bazlı) ve ölçeklenebilir bir klasör yapısı kullanılarak geliştirilmiştir. 
+Ortak yapılar, feature'lar ve paylaşımlı component'ler net şekilde ayrılmıştır.
+
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── core/                    
+│   │   │   ├── guards/
+│   │   │   │   ├── auth.guard.ts
+│   │   │   │   └── no-auth.guard.ts
+│   │   │   ├── interceptors/
+│   │   │   │   └── jwt.interceptor.ts
+│   │   │   ├── models/
+│   │   │   │   ├── auth.models.ts
+│   │   │   │   └── user.models.ts
+│   │   │   └── services/
+│   │   │       ├── auth.service.ts
+│   │   │       └── user.service.ts
+│   │   │
+│   │   ├── features/
+│   │   │   ├── auth/
+│   │   │   │   ├── login/
+│   │   │   │   └── register/
+│   │   │   │
+│   │   │   └── tickets/
+│   │   │       ├── components/
+│   │   │       │   ├── comment-form/
+│   │   │       │   └── comment-list/
+│   │   │       ├── models/
+│   │   │       │   ├── ticket.models.ts
+│   │   │       │   └── comment.models.ts
+│   │   │       ├── pages/
+│   │   │       │   ├── ticket-list/
+│   │   │       │   ├── ticket-detail/
+│   │   │       │   └── ticket-create/
+│   │   │       └── services/
+│   │   │           ├── ticket.service.ts
+│   │   │           └── comment.service.ts
+│   │   │
+│   │   ├── shared/
+│   │   │   ├── components/
+│   │   │   │   ├── navbar/
+│   │   │   │   ├── confirm-modal/
+│   │   │   │   ├── toast/
+│   │   │   │   ├── user-select/
+│   │   │   │   └── recent-pages/
+│   │   │   └── services/
+│   │   │       ├── toast.service.ts
+│   │   │       └── recent-pages.service.ts
+│   │   │
+│   │   ├── app.config.ts
+│   │   ├── app.routes.ts
+│   │   └── app.ts
+│   │
+│   └── environments/
+│       ├── environment.ts
+│       └── environment.prod.ts
+
+Bu yapı sayesinde:
+- Auth, Ticket ve Comment modülleri birbirinden izole edilmiştir.
+- Yeni feature eklenmesi kolaylaştırılmıştır.
+- Kod tekrarının önüne geçilmiştir.
+
+5. Kimlik Doğrulama (Authentication) Akışı
+
+- Kullanıcı login veya register ekranı üzerinden sisteme giriş yapar.
+- Register işlemi: Kullanıcı kayıt olduktan sonra otomatik giriş yapmaz, başarı mesajı gösterilir ve login sayfasına yönlendirilir.
+- Login işlemi: Backend tarafından dönen JWT token localStorage üzerinde saklanır ve kullanıcı otomatik olarak sisteme giriş yapar.
+- AuthGuard ile yetkisiz kullanıcıların korumalı sayfalara erişimi engellenmiştir.
+- NoAuthGuard ile giriş yapmış kullanıcıların login/register sayfalarına erişimi engellenmiştir.
+- HTTP Interceptor sayesinde tüm API isteklerine otomatik olarak Authorization header eklenir.
+- Token geçersiz olduğunda kullanıcı otomatik olarak logout edilir ve login ekranına yönlendirilir.
+
+Kullanılan Authentication Endpoint'leri:
+- POST /api/auth/login - Kullanıcı girişi (JWT token döner)
+- POST /api/auth/register - Kullanıcı kaydı (RegisterResponse döner, token dönmez)
+
+6. Ticket Yönetimi Özellikleri
+
+Frontend tarafında ticket işlemleri uçtan uca, component bazlı bir yapı ile geliştirilmiştir.
+
+6.1 Ticket Listesi (Ticket List Component)
+- "Oluşturduğum Ticket'lar" ve "Bana Atanan Ticket'lar" arasında geçiş yapılabilmektedir.
+- Backend destekli sayfalama (page, pageSize) uygulanmıştır.
+- Gerçek zamanlı arama (debounced search) mevcuttur.
+- Status (Open, In Progress, Done) filtreleme
+- Priority (Low, Medium, High) filtreleme
+- Filtreleri temizleme özelliği
+- Yükleniyor (loading) ve boş liste (empty state) durumları
+- Responsive tablo yapısı ve renkli durum etiketleri
+
+6.2 Ticket Detay ve Güncelleme (Ticket Detail Component)
+- Ticket detaylarının görüntülenmesi
+- Status ve priority için renkli etiketler
+- Düzenleme (edit) modu
+- Title, description ve priority güncelleme
+- Status güncelleme için hızlı aksiyon butonları
+- Ticket silme özelliği (sadece oluşturan kullanıcı)
+- Form doğrulamaları
+- Hata ve loading durumları
+- Geri dönüş (back) navigasyonu
+
+6.3 Ticket Oluşturma (Ticket Create Component)
+- Yeni ticket oluşturma formu
+- Title (zorunlu, max 200 karakter) doğrulaması
+- Description (zorunlu, max 2000 karakter) doğrulaması
+- Priority seçimi (enum değerleri: Low=1, Medium=2, High=3)
+- Assignee belirleme (user-select component ile)
+- Form validasyonları ve hata mesajları
+- Başarılı oluşturma sonrası detay sayfasına yönlendirme
+
+Kullanılan Ticket Endpoint'leri:
+- GET /api/tickets/created - Kullanıcının oluşturduğu ticket'lar (query params: page, pageSize, search, status, priority)
+- GET /api/tickets/assigned - Kullanıcıya atanan ticket'lar (query params: page, pageSize, search, status, priority)
+- GET /api/tickets/{ticketId} - Ticket detayı
+- POST /api/tickets - Yeni ticket oluşturma
+- PUT /api/tickets/{ticketId} - Ticket güncelleme
+- PATCH /api/tickets/{ticketId}/status - Sadece status güncelleme (body: { status: number })
+- DELETE /api/tickets/{ticketId} - Ticket silme
+
+7. Comment (Yorum) Modülü
+
+Ticket'lara ait yorum işlemleri backend API'leri ile entegre edilmiştir.
+
+- Ticket detay ekranında ilgili ticket'a ait yorumlar listelenir.
+- Kullanıcı yeni yorum ekleyebilir.
+- Kullanıcı kendi yorumunu güncelleyebilir veya silebilir.
+- Yorum işlemleri JWT ile korumalıdır.
+- Yükleniyor, hata ve boş yorum durumları kullanıcıya gösterilmektedir.
+- Yorumlar gerçek zamanlı olarak görüntülenir (az önce, X dakika önce, X saat önce formatında)
+
+Kullanılan Comment Endpoint'leri:
+- GET /api/tickets/{ticketId}/comments - Ticket'a ait yorumlar
+- POST /api/tickets/{ticketId}/comments - Yeni yorum ekleme (body: { text: string })
+- PUT /api/comments/{commentId} - Yorum güncelleme (body: { text: string })
+- DELETE /api/comments/{commentId} - Yorum silme
+
+8. Users (Assignee) Entegrasyonu
+
+Ticket oluşturma ve güncelleme sırasında assignee seçimi backend'deki Users endpoint'i üzerinden yapılmaktadır.
+
+- Kullanıcı arama (search) parametresi ile assignee listesi alınır.
+- Kullanıcı seçimi frontend tarafında ilgili formlarda kullanılır.
+- Yetkilendirme JWT üzerinden sağlanır.
+- UserSelectComponent ile dropdown arama özelliği sunulur.
+
+Kullanılan User Endpoint'i:
+- GET /api/users/assignees - Atanabilir kullanıcı listesi (query param: search)
+
+9. ş Kuralları ve Yetkilendirme
+
+Frontend tarafında backend ile uyumlu olacak şekilde aşağıdaki iş kuralları uygulanmıştır:
+- Kimliği doğrulanmamış kullanıcılar sisteme erişemez.
+- Ticket'ı oluşturan kullanıcı ticket'ı güncelleyebilir ve silebilir.
+- Ticket status güncelleme işlemi yalnızca ticket'a atanmış kullanıcı tarafından yapılabilir.
+- Ticket oluşturan kullanıcı status'u hızlı güncelleme butonlarından değiştiremez (sadece atanan kullanıcı yapabilir).
+- Her kullanıcı yalnızca kendi yorumlarını güncelleyebilir ve silebilir.
+
+10. Özel Özellikler
+
+10.1 Priority Enum Desteği
+- Priority değerleri enum olarak tutulur (Low=1, Medium=2, High=3)
+- HTML select elementlerinde [ngValue] kullanılarak number değerler korunur
+- Backend'e doğru enum değerleri gönderilir
+
+10.2 Toast Notification Sistemi
+- Başarılı/hatalı işlemler için kullanıcıya bildirim gösterilir
+- Otomatik kapanma özelliği
+- Farklı tipte mesajlar (success, error, info, warning)
+
+10.3 Confirm Modal
+- Silme gibi kritik işlemler için onay modalı
+- Ticket ve comment silme işlemlerinde kullanılır
+
+11. Responsive Tasarım
+
+Uygulama mobil ve masaüstü ekranlara uyumlu olacak şekilde responsive olarak geliştirilmiştir.
+Formlar, tablolar ve aksiyon butonları farklı ekran boyutlarında sorunsuz şekilde kullanılabilmektedir.
+Modern blue-cyan (indigo-cyan) gradient renk paleti kullanılmıştır (#4f46e5 → #06b6d4).
+
+12. Çalıştırma Adımları
+
+1. Backend uygulaması çalıştırılır (https://localhost:7011).
+2. Frontend dizininde bağımlılıklar yüklenir:
+   npm install
+3. Angular uygulaması başlatılır:
+   ng serve
+4. Uygulama varsayılan olarak http://localhost:4200 adresinde çalışır.
+5. Backend API adresi environment dosyası üzerinden yapılandırılmıştır.
+
+13. Genel Değerlendirme
+
+Bu frontend uygulaması, backend RESTful API'leri ile tam uyumlu şekilde geliştirilmiştir.
+Component bazlı mimari, temiz klasör yapısı ve servis ayrımı sayesinde sürdürülebilir bir yapı oluşturulmuştur.
+Authentication, yetkilendirme, ticket yönetimi, kullanıcı deneyimi ve responsive tasarım gibi temel gereksinimler eksiksiz olarak karşılanmıştır.
+
+BONUS – Son Gezdiklerim (localStorage)
+
+Kullanıcının uygulama içinde ziyaret ettiği sayfalar Router event'leri (NavigationEnd) dinlenerek takip edilmiştir.
+Ziyaret edilen sayfalar tarayıcı tarafında localStorage üzerinde "recent_pages" anahtarı ile saklanır ve uygulama yenilense bile geçmiş korunur.
+
+Özellikler:
+- Maksimum 3 sayfa tutulur.
+- Aynı sayfa tekrar ziyaret edilirse listeye duplicate eklenmez, en üste taşınır.
+- Auth sayfaları (login, register) takip edilmez.
+- Ekranın bir köşesinde "Son Gezdiklerim" bileşeni gösterilir.
+- Kullanıcı listeden bir sayfaya tıklayarak hızlıca geri gidebilir.
+- "Temizle" aksiyonu ile kayıtlı geçmiş direkt olarak sıfırlanır (onay modalı yok).
+- Zaman bilgisi gösterilir (az önce, X dakika önce, X saat önce, X gün önce).
+- Genişlet/Daralt özelliği ile kullanıcı listesi gizlenebilir.
+
+---
+
+API Endpoint Özeti (RESTful Yapı):
+
+Authentication:
+- POST /api/auth/login
+- POST /api/auth/register
+
+Tickets:
+- GET /api/tickets/created
+- GET /api/tickets/assigned
+- GET /api/tickets/{ticketId}
+- POST /api/tickets
+- PUT /api/tickets/{ticketId}
+- PATCH /api/tickets/{ticketId}/status
+- DELETE /api/tickets/{ticketId}
+
+Comments:
+- GET /api/tickets/{ticketId}/comments
+- POST /api/tickets/{ticketId}/comments
+- PUT /api/comments/{commentId}
+- DELETE /api/comments/{commentId}
+
+Users:
+- GET /api/users/assignees

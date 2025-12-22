@@ -25,7 +25,7 @@
 .btn-back {
   border: none;
   background: none;
-  color: #667eea;
+  color: #4f46e5;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -34,7 +34,7 @@
   display: inline-block;
 
   &:hover {
-    color: #5568d3;
+    color: #4338ca;
   }
 }
 
@@ -85,8 +85,8 @@
 
     &:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     }
 
     &.invalid {
@@ -132,12 +132,12 @@
   transition: all 0.2s;
 
   &.btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
     color: white;
 
     &:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
     }
   }
 

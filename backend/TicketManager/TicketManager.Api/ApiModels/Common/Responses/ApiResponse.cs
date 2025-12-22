@@ -11,6 +11,7 @@
 
         public static ApiResponse<T> Fail(string code, string message) =>
             new() { Success = false, Error = new ApiError(code, message) };
+
     }
 
 

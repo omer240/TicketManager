@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TicketManager.Api.ApiModels.Comments;
@@ -11,7 +10,7 @@ namespace TicketManager.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api")]
     public class CommentsController : ControllerBase
     {
         private readonly ICommentService _commentService;
@@ -21,36 +20,34 @@ namespace TicketManager.Api.Controllers
             _commentService = commentService;
         }
 
-        // GET api/comments/ByTicket?ticketId=5
-        [HttpGet]
-        public async Task<ActionResult<ApiResponse<IReadOnlyList<CommentDto>>>> ByTicket([FromQuery] int ticketId,
-            CancellationToken ct)
+        // GET api/tickets/{ticketId}/comments
+        [HttpGet("tickets/{ticketId:int}/comments")]
+        public async Task<ActionResult<ApiResponse<IReadOnlyList<CommentDto>>>> ByTicket(int ticketId,CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
             var list = await _commentService.GetByTicketIdAsync(userId, ticketId, ct);
             return Ok(ApiResponse<IReadOnlyList<CommentDto>>.Ok(list));
         }
 
-
-        // POST api/comments/Create
-        [HttpPost]
-        public async Task<ActionResult<ApiResponse<CommentDto>>> Create([FromBody] CommentCreateRequest request,
+        // POST api/tickets/{ticketId}/comments
+        [HttpPost("tickets/{ticketId:int}/comments")]
+        public async Task<ActionResult<ApiResponse<CommentDto>>> Create(int ticketId,[FromBody] CommentCreateRequest request,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
 
             var dto = await _commentService.AddToTicketAsync(
                 userId,
-                request.TicketId,
+                ticketId,
                 new CommentCreateRequest { Text = request.Text },
                 ct);
 
             return Ok(ApiResponse<CommentDto>.Ok(dto));
         }
 
-        // PUT api/comments/Update?commentId=10
-        [HttpPut]
-        public async Task<ActionResult<ApiResponse<CommentDto>>> Update([FromQuery] int commentId,[FromBody] CommentUpdateRequest request,
+        // PUT api/comments/{commentId}
+        [HttpPut("comments/{commentId:int}")]
+        public async Task<ActionResult<ApiResponse<CommentDto>>> Update(int commentId,[FromBody] CommentUpdateRequest request,
             CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
@@ -58,17 +55,15 @@ namespace TicketManager.Api.Controllers
             return Ok(ApiResponse<CommentDto>.Ok(dto));
         }
 
-        // DELETE api/comments/Delete?commentId=10
-        [HttpDelete]
-        public async Task<ActionResult<ApiResponse<object>>> Delete([FromQuery] int commentId,
-            CancellationToken ct)
+        // DELETE api/comments/{commentId}
+        [HttpDelete("comments/{commentId:int}")]
+        public async Task<ActionResult<ApiResponse<object>>> Delete(int commentId,CancellationToken ct)
         {
             var userId = GetUserIdOrThrow();
             await _commentService.DeleteAsync(userId, commentId, ct);
             return Ok(ApiResponse<object>.Ok(new { deleted = true }));
         }
 
-        //JWT içindeki NameIdentifier claimden giriş yapan kullanıcı bilgilerini okumak için kullanılan yardımcı metot
         private string GetUserIdOrThrow()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -76,6 +71,5 @@ namespace TicketManager.Api.Controllers
                 throw ApiException.Unauthorized("Kullanıcı kimliği doğrulanamadı.");
             return userId;
         }
-
     }
 }

@@ -13,9 +13,6 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get assignable users with optional search
-   */
   getAssignees(search?: string): Observable<ApiResponse<UserDto[]>> {
     let params = new HttpParams();
     
@@ -24,7 +21,7 @@ export class UserService {
     }
 
     return this.http.get<ApiResponse<UserDto[]>>(
-      `${this.API_URL}/api/Users/Assignees`,
+      `${this.API_URL}/api/users/assignees`,
       { params }
     );
   }

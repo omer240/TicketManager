@@ -1,0 +1,135 @@
+POSTMAN KULLANIM REHBERİ – Ticket Manager API
+===========================================
+
+Bu dosya, Ticket Manager API için hazırlanmış Postman Collection’ın
+nasıl kullanılacağını adım adım açıklamak amacıyla hazırlanmıştır.
+
+------------------------------------------------
+1. Collection Import Etme
+------------------------------------------------
+1. Postman uygulamasını açın.
+2. Sol üstten "Import" butonuna tıklayın.
+3. /postman klasörü altında bulunan
+   "TicketManager.postman_collection.json" dosyasını seçin.
+4. Import işlemi tamamlandıktan sonra Collection sol menüde görünecektir.
+
+------------------------------------------------
+2. Gerekli Değişkenler (Variables)
+------------------------------------------------
+Collection içerisinde aşağıdaki değişkenler otomatik olarak kullanılır:
+
+- baseUrl
+- token
+- ticketId
+- commentId
+
+Sadece baseUrl manuel olarak ayarlanmalıdır.
+
+Collection > Variables bölümüne girerek:
+baseUrl = https://localhost:7011
+şeklinde ayarlayınız.
+
+Diğer değişkenler otomatik olarak set edilmektedir.
+
+------------------------------------------------
+3. Kimlik Doğrulama (Login)
+------------------------------------------------
+1. Auth > Login request’ini açın.
+2. Body kısmında kullanıcı bilgilerini girin.
+3. Request’i çalıştırın.
+
+Login başarılı olduğunda:
+- JWT token otomatik olarak collection değişkeni olarak kaydedilir.
+- Sonraki tüm isteklerde Authorization header otomatik olarak eklenir.
+
+------------------------------------------------
+4. Ticket Akışı
+------------------------------------------------
+Önerilen kullanım sırası:
+
+1. Tickets > Create
+   - Yeni bir ticket oluşturur.
+   - Oluşan ticketId otomatik olarak kaydedilir.
+
+2. Tickets > MyCreated / MyAssigned
+   - Kullanıcının oluşturduğu ve kendisine atanan ticket’ları listeler.
+
+3. Tickets > Detail
+   - Son oluşturulan ticket detayını getirir.
+
+4. Tickets > Update
+   - Ticket başlık, açıklama ve öncelik bilgilerini günceller.
+
+5. Tickets > UpdateStatus
+   - Ticket durumunu günceller.
+   - Bu işlem yalnızca ticket’a atanmış kullanıcı tarafından yapılabilir.
+
+------------------------------------------------
+5. Ticket Atanacak Kullanıcı (Assignee) Seçimi
+------------------------------------------------
+Ticket oluşturulurken veya güncellenirken AssignedToUserId alanı zorunludur.
+Bu alan için kullanılacak kullanıcı ID’si aşağıdaki şekilde elde edilebilir:
+
+1. Users > Assignees request’ini çalıştırın.
+2. Response içerisinde kullanıcıların id ve fullName bilgileri yer almaktadır.
+3. Ticket oluşturmak veya güncellemek istediğiniz kullanıcıya ait id
+   değerini kopyalayın.
+
+Örnek response:
+
+{
+  "success": true,
+  "data": [
+    {
+      "id": "a12f3c...",
+      "fullName": "Mehmet Demir"
+    },
+    {
+      "id": "b45k9e...",
+      "fullName": "Ayşe Yılmaz"
+    }
+  ]
+}
+
+Elde edilen kullanıcı ID’si, ticket oluşturma veya güncelleme sırasında
+AssignedToUserId alanına girilmelidir.
+
+Örnek Ticket Create / Update Body:
+
+{
+  "title": "Login problemi",
+  "description": "Kullanıcı sisteme giriş yapamıyor.",
+  "priority": 1,
+  "assignedToUserId": "b45k9e..."
+}
+
+Bu yöntem sayesinde ticket’lar sistemdeki geçerli kullanıcılara doğru
+şekilde atanabilmektedir.
+
+------------------------------------------------
+6. Comment Akışı
+------------------------------------------------
+1. Comments > Create
+   - Ticket’a yorum ekler.
+   - Oluşan commentId otomatik olarak kaydedilir.
+
+2. Comments > Update
+   - Yorumu günceller.
+
+3. Comments > Delete
+   - Yorumu siler.
+
+------------------------------------------------
+7. Otomatik Değişken Yönetimi
+------------------------------------------------
+- ticketId ve commentId değerleri manuel olarak girilmez.
+- Create işlemlerinden sonra Postman script’leri sayesinde
+  otomatik olarak collection variable olarak kaydedilir.
+- Bu sayede tüm request’ler zincirleme şekilde kolayca test edilebilir.
+
+------------------------------------------------
+8. Notlar
+------------------------------------------------
+- Tüm request’ler RESTful API kurallarına uygun şekilde tasarlanmıştır.
+- Authorization işlemleri merkezi olarak Collection seviyesinde yönetilmektedir.
+- Collection, tekrar çalıştırılabilir ve kullanıcıdan minimum manuel işlem gerektirir.

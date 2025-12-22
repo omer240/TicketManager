@@ -8,7 +8,7 @@ import {
   TicketQuery,
   TicketCreateRequest,
   TicketUpdateRequest,
-  TicketStatusUpdateRequest,
+  TicketStatus,
   PagedResult
 } from '../models/ticket.models';
 
@@ -20,82 +20,52 @@ export class TicketService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get tickets created by current user
-   */
   getMyCreated(query?: TicketQuery): Observable<ApiResponse<PagedResult<TicketDto>>> {
     const params = this.buildQueryParams(query);
     return this.http.get<ApiResponse<PagedResult<TicketDto>>>(
-      `${this.API_URL}/api/Tickets/MyCreated`,
+      `${this.API_URL}/api/tickets/created`,
       { params }
     );
   }
 
-  /**
-   * Get tickets assigned to current user
-   */
   getMyAssigned(query?: TicketQuery): Observable<ApiResponse<PagedResult<TicketDto>>> {
     const params = this.buildQueryParams(query);
     return this.http.get<ApiResponse<PagedResult<TicketDto>>>(
-      `${this.API_URL}/api/Tickets/MyAssigned`,
+      `${this.API_URL}/api/tickets/assigned`,
       { params }
     );
   }
 
-  /**
-   * Get ticket detail by ID
-   */
   getDetail(ticketId: number): Observable<ApiResponse<TicketDto>> {
     return this.http.get<ApiResponse<TicketDto>>(
-      `${this.API_URL}/api/Tickets/Detail`,
-      { params: { ticketId: ticketId.toString() } }
+      `${this.API_URL}/api/tickets/${ticketId}`
     );
   }
 
-  /**
-   * Create new ticket
-   */
   create(request: TicketCreateRequest): Observable<ApiResponse<TicketDto>> {
-    return this.http.post<ApiResponse<TicketDto>>(
-      `${this.API_URL}/api/Tickets/Create`,
-      request
-    );
+    const url = `${this.API_URL}/api/tickets`;
+    console.log('Creating ticket - URL:', url, 'Request:', request);
+    return this.http.post<ApiResponse<TicketDto>>(url, request);
   }
 
-  /**
-   * Update ticket
-   */
   update(ticketId: number, request: TicketUpdateRequest): Observable<ApiResponse<TicketDto>> {
-    return this.http.put<ApiResponse<TicketDto>>(
-      `${this.API_URL}/api/Tickets/Update`,
-      request,
-      { params: { ticketId: ticketId.toString() } }
-    );
+    const url = `${this.API_URL}/api/tickets/${ticketId}`;
+    console.log('Updating ticket - URL:', url, 'TicketId:', ticketId, 'Request:', request);
+    return this.http.put<ApiResponse<TicketDto>>(url, request);
   }
 
-  /**
-   * Update ticket status only
-   */
-  updateStatus(request: TicketStatusUpdateRequest): Observable<ApiResponse<TicketDto>> {
-    return this.http.patch<ApiResponse<TicketDto>>(
-      `${this.API_URL}/api/Tickets/UpdateStatus`,
-      request
-    );
+  updateStatus(ticketId: number, status: TicketStatus): Observable<ApiResponse<TicketDto>> {
+    const url = `${this.API_URL}/api/tickets/${ticketId}/status`;
+    console.log('Updating status - URL:', url, 'TicketId:', ticketId, 'Status:', status);
+    return this.http.patch<ApiResponse<TicketDto>>(url, { status });
   }
 
-  /**
-   * Delete ticket
-   */
   delete(ticketId: number): Observable<ApiResponse<any>> {
-    return this.http.delete<ApiResponse<any>>(
-      `${this.API_URL}/api/Tickets/Delete`,
-      { params: { ticketId: ticketId.toString() } }
-    );
+    const url = `${this.API_URL}/api/tickets/${ticketId}`;
+    console.log('Deleting ticket - URL:', url, 'TicketId:', ticketId);
+    return this.http.delete<ApiResponse<any>>(url);
   }
 
-  /**
-   * Build HTTP params from query object
-   */
   private buildQueryParams(query?: TicketQuery): HttpParams {
     let params = new HttpParams();
 

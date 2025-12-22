@@ -12,41 +12,27 @@ export class CommentService {
   private http = inject(HttpClient);
   private readonly API_URL = environment.apiBaseUrl;
 
-  /**
-   * Get all comments for a ticket
-   */
   getByTicket(ticketId: number): Observable<ApiResponse<CommentDto[]>> {
     return this.http.get<ApiResponse<CommentDto[]>>(
-      `${this.API_URL}/api/Comments/ByTicket?ticketId=${ticketId}`
+      `${this.API_URL}/api/tickets/${ticketId}/comments`
     );
   }
 
-  /**
-   * Add new comment to ticket
-   */
-  add(request: CommentCreateRequest): Observable<ApiResponse<CommentDto>> {
-    return this.http.post<ApiResponse<CommentDto>>(
-      `${this.API_URL}/api/Comments/Create`,
-      request
-    );
+  add(ticketId: number, text: string): Observable<ApiResponse<CommentDto>> {
+    const url = `${this.API_URL}/api/tickets/${ticketId}/comments`;
+    console.log('Adding comment - URL:', url, 'TicketId:', ticketId, 'Text:', text);
+    return this.http.post<ApiResponse<CommentDto>>(url, { text });
   }
 
-  /**
-   * Update existing comment
-   */
   update(commentId: number, request: CommentUpdateRequest): Observable<ApiResponse<CommentDto>> {
-    return this.http.put<ApiResponse<CommentDto>>(
-      `${this.API_URL}/api/Comments/Update?commentId=${commentId}`,
-      request
-    );
+    const url = `${this.API_URL}/api/comments/${commentId}`;
+    console.log('Updating comment - URL:', url, 'CommentId:', commentId, 'Request:', request);
+    return this.http.put<ApiResponse<CommentDto>>(url, request);
   }
 
-  /**
-   * Delete comment
-   */
   delete(commentId: number): Observable<ApiResponse<{ deleted: boolean }>> {
-    return this.http.delete<ApiResponse<{ deleted: boolean }>>(
-      `${this.API_URL}/api/Comments/Delete?commentId=${commentId}`
-    );
+    const url = `${this.API_URL}/api/comments/${commentId}`;
+    console.log('Deleting comment - URL:', url, 'CommentId:', commentId);
+    return this.http.delete<ApiResponse<{ deleted: boolean }>>(url);
   }
 }

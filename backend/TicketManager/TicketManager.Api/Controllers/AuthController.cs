@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using TicketManager.Api.ApiModels.Auth;
+using TicketManager.Api.ApiModels.Auth.Login;
+using TicketManager.Api.ApiModels.Auth.Register;
 using TicketManager.Api.ApiModels.Common.Responses;
 using TicketManager.Api.Extensions;
 using TicketManager.Api.Services.Interfaces.Auth;
 
 namespace TicketManager.Api.Controllers
 {
-    [Route("api/[controller]/[action]")]
     [ApiController]
+    [Route("api/auth")]
     [EnableRateLimiting(RateLimitExtensions.AuthPolicy)]
     public class AuthController : ControllerBase
     {
@@ -21,24 +21,22 @@ namespace TicketManager.Api.Controllers
             _authService = authService;
         }
 
+        // POST api/auth/register
         [AllowAnonymous]
-        [HttpPost]
-        public async Task<ActionResult<ApiResponse<AuthResponse>>> Register(
-            [FromBody] RegisterRequest request,
-            CancellationToken ct)
+        [HttpPost("register")]
+        public async Task<ActionResult<ApiResponse<RegisterResponse>>> Register([FromBody] RegisterRequest request,CancellationToken ct)
         {
             var dto = await _authService.RegisterAsync(request, ct);
-            return Ok(ApiResponse<AuthResponse>.Ok(dto));
+            return Ok(ApiResponse<RegisterResponse>.Ok(dto));
         }
 
+        // POST api/auth/login
         [AllowAnonymous]
-        [HttpPost]
-        public async Task<ActionResult<ApiResponse<AuthResponse>>> Login(
-            [FromBody] LoginRequest request,
-            CancellationToken ct)
+        [HttpPost("login")]
+        public async Task<ActionResult<ApiResponse<LoginResponse>>> Login([FromBody] LoginRequest request,CancellationToken ct)
         {
             var dto = await _authService.LoginAsync(request, ct);
-            return Ok(ApiResponse<AuthResponse>.Ok(dto));
+            return Ok(ApiResponse<LoginResponse>.Ok(dto));
         }
     }
 }

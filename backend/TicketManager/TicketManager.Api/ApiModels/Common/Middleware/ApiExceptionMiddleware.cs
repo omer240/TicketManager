@@ -30,7 +30,7 @@ namespace TicketManager.Api.ApiModels.Common.Middleware
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = ex.StatusCode;
 
-                var response = ApiResponse<object>.Fail(ex.Code, ex.Message);
+                var response = ApiResponse<EmptyDto>.Fail(ex.Code, ex.Message);
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response, JsonOptions));
             }
             catch (Exception)
@@ -38,7 +38,7 @@ namespace TicketManager.Api.ApiModels.Common.Middleware
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = 500;
 
-                var response = ApiResponse<object>.Fail(ErrorCodes.ServerError, "Unexpected error occurred.");
+                var response = ApiResponse<EmptyDto>.Fail(ErrorCodes.ServerError, "Unexpected error occurred.");
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response, JsonOptions));
             }
         }

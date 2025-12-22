@@ -53,6 +53,14 @@ namespace TicketManager.Api.Repositories.Implementations
                  ct);
         }
 
+        public async Task<Ticket?> GetByIdWithUsersAsync(int ticketId, CancellationToken ct = default)
+        {
+            return await _set
+                .Include(t => t.CreatedByUser)
+                .Include(t => t.AssignedToUser)
+                .FirstOrDefaultAsync(t => t.Id == ticketId, ct);
+        }
+
 
         private IQueryable<Ticket> BuildBaseQuery(TicketQuery query)
         {

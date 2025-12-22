@@ -1,6 +1,6 @@
-﻿namespace TicketManager.Api.ApiModels.Auth
+﻿namespace TicketManager.Api.ApiModels.Auth.Login
 {
-    public class AuthResponse
+    public class LoginResponse
     {
         public string AccessToken { get; set; } = default!;
         public DateTimeOffset ExpiresAt { get; set; }

@@ -1,79 +1,91 @@
 <div class="login-container">
   <div class="login-card">
-    <div class="login-header">
-      <h1>Ticket Manager</h1>
-      <p>Hesabınıza giriş yapın</p>
+    <!-- Left Side - Visual -->
+    <div class="login-visual">
+      <div class="visual-content">
+        <div class="brand-icon">🎫</div>
+        <h2>Ticket Manager'a<br>Hoş Geldiniz</h2>
+        <p>Taleplerinizi kolayca yönetin ve takip edin</p>
+      </div>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <!-- Error Message -->
-      @if (errorMessage) {
-        <div class="alert alert-error">
-          {{ errorMessage }}
+    <!-- Right Side - Form -->
+    <div class="login-form-section">
+      <div class="login-header">
+        <h1>Giriş Yap</h1>
+        <p>Hesabınıza erişmek için bilgilerinizi girin</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Error Message -->
+        @if (errorMessage) {
+          <div class="alert alert-error">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email">E-posta Adresi</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="ornek@email.com"
+            [class.invalid]="email?.invalid && email?.touched"
+          />
+          @if (email?.invalid && email?.touched) {
+            <div class="error-text">
+              @if (email?.errors?.['required']) {
+                <span>E-posta zorunludur</span>
+              }
+              @if (email?.errors?.['email']) {
+                <span>Geçerli bir e-posta adresi girin</span>
+              }
+            </div>
+          }
         </div>
-      }
 
-      <!-- Email Field -->
-      <div class="form-group">
-        <label for="email">E-posta</label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          placeholder="E-posta adresinizi girin"
-          [class.invalid]="email?.invalid && email?.touched"
-        />
-        @if (email?.invalid && email?.touched) {
-          <div class="error-text">
-            @if (email?.errors?.['required']) {
-              <span>E-posta zorunludur</span>
-            }
-            @if (email?.errors?.['email']) {
-              <span>Lütfen geçerli bir e-posta girin</span>
-            }
-          </div>
-        }
-      </div>
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password">Şifre</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+            [class.invalid]="password?.invalid && password?.touched"
+          />
+          @if (password?.invalid && password?.touched) {
+            <div class="error-text">
+              @if (password?.errors?.['required']) {
+                <span>Şifre zorunludur</span>
+              }
+              @if (password?.errors?.['minlength']) {
+                <span>Şifre en az 6 karakter olmalıdır</span>
+              }
+            </div>
+          }
+        </div>
 
-      <!-- Password Field -->
-      <div class="form-group">
-        <label for="password">Şifre</label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          placeholder="Şifrenizi girin"
-          [class.invalid]="password?.invalid && password?.touched"
-        />
-        @if (password?.invalid && password?.touched) {
-          <div class="error-text">
-            @if (password?.errors?.['required']) {
-              <span>Şifre zorunludur</span>
-            }
-            @if (password?.errors?.['minlength']) {
-              <span>Şifre en az 6 karakter olmalıdır</span>
-            }
-          </div>
-        }
-      </div>
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading"
+        >
+          @if (isLoading) {
+            <span>Giriş yapılıyor...</span>
+          } @else {
+            <span>Giriş Yap</span>
+          }
+        </button>
 
-      <!-- Submit Button -->
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="isLoading"
-      >
-        @if (isLoading) {
-          <span>Giriş yapılıyor...</span>
-        } @else {
-          <span>Giriş Yap</span>
-        }
-      </button>
-
-      <!-- Register Link -->
-      <div class="register-link">
-        <p>Hesabınız yok mu? <a routerLink="/auth/register">Kayıt olun</a></p>
-      </div>
-    </form>
+        <!-- Register Link -->
+        <div class="register-link">
+          <p>Hesabınız yok mu? <a routerLink="/auth/register">Hemen kayıt olun</a></p>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

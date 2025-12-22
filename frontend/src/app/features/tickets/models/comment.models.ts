@@ -7,7 +7,6 @@ export interface CommentDto {
 }
 
 export interface CommentCreateRequest {
-  ticketId: number;
   text: string;
 }
 

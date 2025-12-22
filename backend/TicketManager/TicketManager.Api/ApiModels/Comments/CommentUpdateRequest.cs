@@ -4,7 +4,8 @@ namespace TicketManager.Api.ApiModels.Comments
 {
     public class CommentUpdateRequest
     {
-        [Required, MaxLength(2000)]
+        [Required(ErrorMessage = "Yorum metni zorunludur.")]
+        [MaxLength(2000, ErrorMessage = "Yorum metni en fazla 2000 karakter olabilir.")]
         public string Text { get; set; } = default!;
     }
 }

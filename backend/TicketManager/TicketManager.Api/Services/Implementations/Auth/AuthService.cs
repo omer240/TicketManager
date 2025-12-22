@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using TicketManager.Api.ApiModels.Auth;
+using TicketManager.Api.ApiModels.Auth.Login;
+using TicketManager.Api.ApiModels.Auth.Register;
 using TicketManager.Api.ApiModels.Common.Exceptions;
 using TicketManager.Api.Domain.Entities;
 using TicketManager.Api.Services.Interfaces.Auth;
@@ -22,7 +23,7 @@ namespace TicketManager.Api.Services.Implementations.Auth
             _jwt = jwt;
         }
 
-        public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
+        public async Task<RegisterResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(request.Email))
                 throw ApiException.BadRequest("Email zorunludur.");
@@ -50,17 +51,15 @@ namespace TicketManager.Api.Services.Implementations.Auth
 
             var jwtTokenResult = _jwt.CreateToken(user);
 
-            return new AuthResponse
+            return new RegisterResponse
             {
-                AccessToken = jwtTokenResult.AccessToken,
-                ExpiresAt = jwtTokenResult.ExpiresAt,
                 UserId = user.Id,
                 Email = user.Email ?? request.Email,
                 FullName = user.FullName ?? ""
             };
         }
 
-        public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
+        public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(request.Email))
                 throw ApiException.BadRequest("Email zorunludur.");
@@ -78,7 +77,7 @@ namespace TicketManager.Api.Services.Implementations.Auth
 
             var jwtTokenResult = _jwt.CreateToken(user);
 
-            return new AuthResponse
+            return new LoginResponse
             {
                 AccessToken = jwtTokenResult.AccessToken,
                 ExpiresAt = jwtTokenResult.ExpiresAt,

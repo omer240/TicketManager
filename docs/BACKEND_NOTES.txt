@@ -1,0 +1,317 @@
+================================================================================
+                         BACKEND PROJE DOKÜMANTASYONU
+                    Ticket Manager - .NET Core Web API
+================================================================================
+
+Son Güncelleme: 22 Aralık 2025
+Amaç: Backend mimarisini, controller'ları, servisleri, yetkilendirme sistemini
+      ve hata yönetimini anlamak için referans dokümantasyon.
+
+
+================================================================================
+1. PROJE AMAÇ VE GENEL BAKIŞ
+================================================================================
+
+Ticket Manager Backend, bir talep (ticket) yönetim sisteminin sunucu tarafı
+uygulamasıdır. Kullanıcıların:
+- Kayıt olup giriş yapabildiği (JWT kimlik doğrulama)
+- Talep oluşturup düzenleyebildiği
+- Başkalarına talep atayabildiği
+- Taleplere yorum ekleyebildiği
+- Atanan ve oluşturduğu talepleri listeleyebildiği
+
+bir RESTful API sağlar.
+
+
+TEMEL ÖZELLİKLER:
+-----------------
+✓ JWT tabanlı kimlik doğrulama ve yetkilendirme
+✓ ASP.NET Core Identity ile kullanıcı yönetimi
+✓ Entity Framework Core ile veritabanı erişimi
+✓ Repository-Service-Controller katmanlı mimari
+✓ Sayfalamalı (paged) sonuç desteği
+✓ Yetkilendirme (creator/assignee bazlı iş kuralları)
+✓ ApiResponse<T> ile standart hata ve başarı yanıtları
+✓ ApiException ile merkezi hata yönetimi
+✓ CORS ve Rate Limiting desteği
+
+
+================================================================================
+2. KULLANILAN TEKNOLOJİLER
+================================================================================
+
+• .NET 8 / ASP.NET Core Web API
+• C# 12
+• Entity Framework Core
+• SQL Server (MSSQL)
+• ASP.NET Core Identity
+• JWT Bearer Authentication
+
+
+================================================================================
+3. MİMARİ YAPISI
+================================================================================
+
+Controller → Service → Repository → DbContext akışı vardır.
+
+- Controller:
+  HTTP isteklerini karşılar. JWT içinden userId (NameIdentifier) alır.
+- Service:
+  İş mantığı, validation, authorization kontrolleri.
+- Repository:
+  EF Core üzerinden sorgular (paging/filtering dahil).
+- UnitOfWork:
+  SaveChangesAsync tek noktadan yönetilir.
+
+
+================================================================================
+4. KLASÖR YAPISI (ÖZET)
+================================================================================
+
+TicketManager.Api/
+│
+├── Controllers/
+│   ├── AuthController.cs
+│   ├── TicketsController.cs
+│   ├── CommentsController.cs
+│   └── UsersController.cs
+│
+├── Services/ (Interfaces + Implementations)
+├── Repositories/ (Interfaces + Implementations)
+├── Domain/ (Entities + Enums)
+├── ApiModels/ (DTO’lar)
+├── Data/ (DbContext + Configurations + Seed)
+├── Extensions/ (DI, Middleware, CORS, RateLimit)
+├── Settings/ (JwtSettings vb.)
+└── Program.cs
+
+
+================================================================================
+5. AUTH (KİMLİK DOĞRULAMA) AKIŞI
+================================================================================
+
+- Register/Login public (AllowAnonymous)
+- Diğer endpoint’ler [Authorize] korumalıdır.
+- Başarılı Login/Register sonrası JWT token döner.
+- Frontend/Postman her istekte:
+  Authorization: Bearer <token>
+  header’ını gönderir.
+
+Controller’larda userId şu şekilde okunur:
+User.FindFirstValue(ClaimTypes.NameIdentifier)
+
+
+================================================================================
+6. TICKET (TALEP) YÖNETİMİ
+================================================================================
+
+6.1 İş Kuralları (Özet)
+-----------------------
+- Ticket oluşturmayı yapan kişi = Creator (CreatedByUserId).
+- Ticket’ın status’ünü sadece ticket’a atanmış kişi (Assignee) güncelleyebilir.
+- Ticket’ın genel bilgilerini (Title/Description/Priority vb.) sadece Creator güncelleyebilir.
+- Silme işlemi sadece Creator’a açıktır.
+
+6.2 Ticket Endpoint’leri (GÜNCEL / RESTFUL)
+-------------------------------------------
+Tüm Ticket endpoint’leri “path param” ve daha RESTful isimlerle düzenlenmiştir.
+
+Base path:
+  /api/tickets
+
+1) [POST] /api/tickets
+   Amaç: Ticket oluşturma
+   Auth: Gerekli
+   Body: TicketCreateRequest
+     - title (string, required, max 200)
+     - description (string, required, max 2000)
+     - priority (enum / number)
+     - assignedToUserId (string, required)
+
+   Not: Creator ID token’dan alınır. Status varsayılan Open set edilir.
+
+2) [GET] /api/tickets/created
+   Amaç: Kullanıcının oluşturduğu ticket’ları listelemek
+   Auth: Gerekli
+   Query:
+     - page (int, default 1)
+     - pageSize (int, default 20)
+     - search (string?, optional)
+     - status (enum?, optional)
+     - priority (enum?, optional)
+
+3) [GET] /api/tickets/assigned
+   Amaç: Kullanıcıya atanmış ticket’ları listelemek
+   Auth: Gerekli
+   Query: TicketQuery (created ile aynı parametreler)
+
+4) [GET] /api/tickets/{ticketId}
+   Amaç: Ticket detay
+   Auth: Gerekli
+   Path:
+     - ticketId (int)
+
+5) [PUT] /api/tickets/{ticketId}
+   Amaç: Ticket genel güncelleme (creator only)
+   Auth: Gerekli
+   Path:
+     - ticketId (int)
+   Body: TicketUpdateRequest
+     - title (required)
+     - description (required)
+     - priority (enum / number)
+     - assignedToUserId (opsiyonel veya varsa) -> projedeki kararınıza göre
+
+   Not: Bu endpoint status değiştirme için kullanılmaz.
+
+6) [PATCH] /api/tickets/{ticketId}/status
+   Amaç: Ticket status güncelleme (assignee only)
+   Auth: Gerekli
+   Path:
+     - ticketId (int)
+   Body:
+     - status (enum / number)
+   Not: Status güncelleme ayrı endpoint’tir.
+
+7) [DELETE] /api/tickets/{ticketId}
+   Amaç: Ticket silme (creator only)
+   Auth: Gerekli
+   Path:
+     - ticketId (int)
+
+
+================================================================================
+7. COMMENT (YORUM) YÖNETİMİ
+================================================================================
+
+7.1 İş Kuralları (Özet)
+-----------------------
+- Yorum ekleyebilenler: ticket’ın creator’ı veya assignee’si (related user).
+- Yorumu güncelleme/silme: sadece yorumun sahibi (comment owner).
+
+7.2 Comment Endpoint’leri (Önerilen RESTful Akış)
+-------------------------------------------------
+Not: Projede iki mantık birlikte kullanılabilir:
+- Yorumları ticket altında listele/ekle (bağlamlı).
+- Yorumu id ile güncelle/sil (global resource).
+
+Base path:
+  Ticket comment işlemleri: /api/tickets/{ticketId}/comments
+  Tekil yorum işlemleri:    /api/comments/{commentId}
+
+1) [GET] /api/tickets/{ticketId}/comments
+   Amaç: Bir ticket’a ait yorumları listelemek
+   Auth: Gerekli
+   Path:
+     - ticketId (int)
+
+2) [POST] /api/tickets/{ticketId}/comments
+   Amaç: Ticket’a yorum eklemek
+   Auth: Gerekli
+   Path:
+     - ticketId (int)
+   Body:
+     - text (string, required, max 2000)
+
+   Not: TicketId path’ten geldiği için body’de ayrıca göndermek zorunlu değildir.
+   (Mevcut implementasyonda body’de TicketId varsa da kabul edilebilir.)
+
+3) [PUT] /api/comments/{commentId}
+   Amaç: Yorum güncelleme (owner only)
+   Auth: Gerekli
+   Path:
+     - commentId (int)
+   Body:
+     - text (string, required, max 2000)
+
+4) [DELETE] /api/comments/{commentId}
+   Amaç: Yorum silme (owner only)
+   Auth: Gerekli
+   Path:
+     - commentId (int)
+
+
+================================================================================
+8. USERS (ATANABİLİR KULLANICILAR)
+================================================================================
+
+Base path:
+  /api/users
+
+1) [GET] /api/users/assignees?search=mehmet
+   Amaç: Atanabilir kullanıcı listesini getirmek (kendisi hariç)
+   Auth: Gerekli
+   Query:
+     - search (string?, optional)
+
+
+================================================================================
+9. RESPONSE / ERROR FORMAT
+================================================================================
+
+Tüm endpoint’ler standart response döner:
+
+Başarılı:
+{
+  "success": true,
+  "data": ...,
+  "error": null
+}
+
+Hatalı:
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "...",
+    "message": "..."
+  }
+}
+
+Hatalar ApiException + ApiExceptionMiddleware üzerinden merkezi yönetilir.
+
+
+================================================================================
+10. ENUM NOTU (STATUS / PRIORITY)
+================================================================================
+
+Status ve Priority değerleri enum’dur ve isteklerde genelde “number” olarak gönderilir.
+Örn:
+- priority: 0/1/2 ... (projede enum hangi değerden başlıyorsa)
+- status:   0/1/2 ... (projede enum hangi değerden başlıyorsa)
+
+Not: Frontend/Postman tarafında en sağlam yöntem:
+- Enum’u numeric gönder.
+- (String enum istersen JsonStringEnumConverter gerekir.)
+
+
+================================================================================
+11. KISA ENDPOINT ÖZETİ (GÜNCEL)
+================================================================================
+
+AUTH:
+[POST] /api/auth/register
+[POST] /api/auth/login
+
+TICKETS:
+[POST]   /api/tickets
+[GET]    /api/tickets/created
+[GET]    /api/tickets/assigned
+[GET]    /api/tickets/{ticketId}
+[PUT]    /api/tickets/{ticketId}
+[PATCH]  /api/tickets/{ticketId}/status
+[DELETE] /api/tickets/{ticketId}
+
+COMMENTS:
+[GET]    /api/tickets/{ticketId}/comments
+[POST]   /api/tickets/{ticketId}/comments
+[PUT]    /api/comments/{commentId}
+[DELETE] /api/comments/{commentId}
+
+USERS:
+[GET]    /api/users/assignees?search=...
+
+
+================================================================================
+                            DOKÜMANTASYON SONU
+================================================================================
